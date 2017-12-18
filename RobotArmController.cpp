@@ -10,7 +10,9 @@ Joint joints[NUMBER_OF_JOINTS] = {
 		Joint("Elbow", 6, 65),
 		Joint("Wrist", 7, 90),
 		Joint("Rotate", 8, 90),
-		Joint("Grip", 9, 120)
+		Joint("Grip", 9, 120),
+		Joint("Pan", A0, 90),
+		Joint("Tilt", A1, 90)
 };
 
 void setup() {
