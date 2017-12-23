@@ -32,6 +32,9 @@ public:
 	uint8_t getPin();
 	uint16_t getPosition();
 	char* getName();
+
+	uint16_t minPos;
+	uint16_t maxPos;
 };
 
 

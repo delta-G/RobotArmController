@@ -11,10 +11,14 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	name = aName;
 	pin = aPin;
 	position = aPos;
+	minPos=544;
+	maxPos=2400;
 	write(aPos);
 }
 
 void Joint::moveToImmediate(uint16_t aPos) {
+	if(aPos<minPos) aPos = minPos;
+	if(aPos>maxPos) aPos = maxPos;
 	write(aPos);
 	position = aPos;
 }
