@@ -19,6 +19,10 @@ private:
 
 	uint8_t pin;
 	uint16_t position;
+	uint16_t target;
+	uint16_t speed;
+	uint16_t minPos;
+	uint16_t maxPos;
 
 	char* name;
 
@@ -33,8 +37,17 @@ public:
 	uint16_t getPosition();
 	char* getName();
 
-	uint16_t minPos;
-	uint16_t maxPos;
+	void setTarget(uint16_t);
+	void setTarget(uint16_t, uint16_t);
+	void setSpeed(uint16_t);
+
+	void stop();
+
+	boolean run();
+
+
+
+
 };
 
 
