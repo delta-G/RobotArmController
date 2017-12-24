@@ -74,20 +74,6 @@ void heartbeat() {
 	}
 }
 
-void newParseCommand(){
-
-	if (inputBuffer[0] == '<') {
-
-		if (inputBuffer[1] == 'S') {
-			if (inputBuffer[3] == ',') {
-
-			}
-		}
-
-	}
-
-}
-
 void parseCommand() {
 
 	int jointIndex = -1;
@@ -123,6 +109,14 @@ void parseCommand() {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					int spd = atoi((const char*) (p + 2));
 					joints[jointIndex].setSpeed(spd);
+				}
+			} else if (p[0] == 'X') {
+				for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+					joints[i].stop();
+				}
+			} else if (p[0] == 'x') {
+				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
+					joints[jointIndex].stop();
 				}
 			}
 			//  Raw numbers get written to the currently active servo
