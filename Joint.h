@@ -24,6 +24,8 @@ private:
 	uint16_t minPos;
 	uint16_t maxPos;
 
+	static uint16_t max_refresh_rate;
+
 	char* name;
 
 public:
@@ -36,6 +38,8 @@ public:
 	uint8_t getPin();
 	uint16_t getPosition();
 	char* getName();
+
+	boolean onTarget();
 
 	void setTarget(uint16_t);
 	void setTarget(uint16_t, uint16_t);

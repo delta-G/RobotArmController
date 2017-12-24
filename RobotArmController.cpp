@@ -59,7 +59,9 @@ void loop() {
 	}
 
 	heartbeat();
-
+	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+		joints[i].run();
+	}
 }
 
 void heartbeat() {
@@ -70,6 +72,20 @@ void heartbeat() {
 		digitalWrite(HEARTLED, !digitalRead(HEARTLED));
 		pt = ct;
 	}
+}
+
+void newParseCommand(){
+
+	if (inputBuffer[0] == '<') {
+
+		if (inputBuffer[1] == 'S') {
+			if (inputBuffer[3] == ',') {
+
+			}
+		}
+
+	}
+
 }
 
 void parseCommand() {
@@ -92,13 +108,25 @@ void parseCommand() {
 					Serial.print(i);
 					Serial.print(",");
 					Serial.print(joints[i].getPosition());
+					Serial.print(",");
+					Serial.print(joints[i].onTarget());
 					Serial.print(">");
 				}
 			} else if (p[0] == 'C') {
 				Serial.print("<C,0>");
+			} else if (p[0] == 'T') {
+				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
+					int targ = atoi((const char*) (p + 2));
+					joints[jointIndex].setTarget(targ);
+				}
+			} else if (p[0] == 's') {
+				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
+					int spd = atoi((const char*) (p + 2));
+					joints[jointIndex].setSpeed(spd);
+				}
 			}
 			//  Raw numbers get written to the currently active servo
-			else {
+			else if (isDigit(p[0])){
 				int position = atoi((const char*) p);
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					joints[jointIndex].moveToImmediate(position);

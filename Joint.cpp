@@ -16,6 +16,9 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	minPos=544;
 	maxPos=2400;
 	write(aPos);
+
+	max_refresh_rate = 100;
+
 }
 
 void Joint::moveToImmediate(uint16_t aPos) {
@@ -32,6 +35,10 @@ uint8_t Joint::getPin(){
 
 uint16_t Joint::getPosition(){
 	return position;
+}
+
+boolean Joint::onTarget(){
+	return position == target;
 }
 
 
