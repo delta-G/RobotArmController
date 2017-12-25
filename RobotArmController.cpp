@@ -24,32 +24,30 @@ char inputBuffer[MAX_COMMAND_LENGTH];
 uint8_t index = 0;
 boolean receiving = false;
 
+
+
 Joint joints[NUMBER_OF_JOINTS] = {
-		Joint("Base", 4, 90),
-		Joint("Shoulder", 5, 65),
-		Joint("Elbow", 6, 65),
-		Joint("Wrist", 7, 90),
-		Joint("Rotate", 8, 90),
+		Joint("Base", 4, 1525),
+		Joint("Shoulder", 5, 1080),
+		Joint("Elbow", 6, 880),
+		Joint("Wrist", 7, 895),
+		Joint("Rotate", 8, 1485),
 		Joint("Grip", 9, 120),
-		Joint("Pan", A0, 90),
-		Joint("Tilt", A1, 90)
+		Joint("Pan", A0, 1220),
+		Joint("Tilt", A1, 1350)
 };
+
+Arm_Class arm(joints, NUMBER_OF_JOINTS);
 
 void setup() {
 
 	Serial.begin(SER_BAUD);
-
-	pinMode(PROBLEM_LED, OUTPUT);
+//	pinMode(PROBLEM_LED, OUTPUT);
+//	digitalWrite(PROBLEM_LED, LOW);
 	pinMode(HEARTLED, OUTPUT);
-	digitalWrite(PROBLEM_LED, LOW);
 	digitalWrite(HEARTLED, LOW);
 
-	for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
-		joints[i].attach(joints[i].getPin());
-		delay(50);
-		joints[i].moveToImmediate(joints[i].getPosition());
-		delay(450);
-	}
+	arm.init();
 
 }
 
@@ -79,15 +77,12 @@ void loop() {
 	}
 
 	heartbeat();
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
-		joints[i].run();
-	}
+	arm.run();
 }
 
 void heartbeat() {
 	static unsigned long pt = millis();
 	unsigned long ct = millis();
-
 	if (ct - pt >= 500) {
 		digitalWrite(HEARTLED, !digitalRead(HEARTLED));
 		pt = ct;

@@ -46,6 +46,8 @@ public:
 
 	Joint(char* name, uint8_t aPin, uint16_t aPos);
 
+	void init();
+
 	void moveToImmediate(uint16_t aPos);
 
 	uint8_t getPin();

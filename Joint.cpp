@@ -28,10 +28,15 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	speed = 5;
 	minPos=544;
 	maxPos=2400;
-	write(aPos);
+//	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
 	max_refresh_rate = 100;
 
+}
+
+void Joint::init(){
+	attach(pin);
+	write(position);
 }
 
 void Joint::moveToImmediate(uint16_t aPos) {
