@@ -25,6 +25,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include <Servo.h>
 
 #include "Joint.h"
+#include "ArmClass.h"
 
 #define SER_BAUD 115200
 #define PROBLEM_LED A3

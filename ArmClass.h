@@ -21,6 +21,9 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #ifndef ARMCLASS_H_
 #define ARMCLASS_H_
 
+#include "Arduino.h"
+#include "Joint.h"
+
 class Arm_Class {
 
 private:
