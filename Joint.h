@@ -37,7 +37,7 @@ private:
 	uint16_t minPos;
 	uint16_t maxPos;
 
-	static uint16_t max_refresh_rate;
+	uint16_t max_refresh_rate;
 
 	char* name;
 

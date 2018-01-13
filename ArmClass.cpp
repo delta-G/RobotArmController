@@ -20,6 +20,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "ArmClass.h"
 
+#define NUMBER_OF_JOINTS 8
 
 Arm_Class::Arm_Class(){
 
