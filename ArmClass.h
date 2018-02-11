@@ -23,6 +23,9 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "Arduino.h"
 #include "Joint.h"
+#include <EepromFuncs.h>
+
+#define EEPROM_START 24
 
 class Arm_Class {
 
@@ -40,6 +43,8 @@ public:
 	void addJoint(int, Joint);
 	void init();
 	void run();
+	void savePosition(int);
+	void readPosition(int);
 
 };
 

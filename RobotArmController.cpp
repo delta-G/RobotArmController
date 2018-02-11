@@ -32,9 +32,9 @@ Joint joints[NUMBER_OF_JOINTS] = {
 		Joint("Elbow", 6, 880),
 		Joint("Wrist", 7, 895),
 		Joint("Rotate", 8, 1485),
-		Joint("Grip", 9, 120),
-		Joint("Pan", A0, 1220),
-		Joint("Tilt", A1, 1350)
+		Joint("Grip", 9, 145),
+		Joint("Pan", A0, 1350),
+		Joint("Tilt", A1, 1220)
 };
 
 Arm_Class arm(joints, NUMBER_OF_JOINTS);
@@ -48,7 +48,7 @@ void setup() {
 	digitalWrite(HEARTLED, LOW);
 
 	arm.init();
-
+	arm.readPosition(24);  // 24 is where I saved the start position for the arm.
 }
 
 void loop() {

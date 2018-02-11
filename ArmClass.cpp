@@ -54,3 +54,22 @@ void Arm_Class::run(){
 			joints[i].run();
 		}
 }
+
+
+
+void Arm_Class::savePosition(int aAddress){
+	int add = aAddress;
+	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+		int p = joints[i].getPosition();
+		add += writeToEEPROM(add, p );
+	}
+}
+
+void Arm_Class::readPosition(int aAddress){
+	int add = aAddress;
+	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+		int p;
+		add += readFromEEPROM(add, p);
+		joints[i].moveToImmediate(p);
+	}
+}
