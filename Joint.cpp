@@ -31,12 +31,10 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
 	max_refresh_rate = 100;
-
 }
 
 void Joint::init(){
 	attach(pin);
-	write(position);
 }
 
 void Joint::moveToImmediate(uint16_t aPos) {
@@ -108,8 +106,32 @@ boolean Joint::run() {
 		}
 		if(position < minPos) position = minPos;
 		if(position > maxPos) position = maxPos;
-		write(position);
 	}
-
+	write(position);
 	return (position == target);
+}
+
+
+//  Saves 5 ints for a total of 10 bytes.
+void Joint::saveState(int aAddress){
+
+	int add = aAddress;
+	add += writeToEEPROM(add, position);
+	add += writeToEEPROM(add, target);
+	add += writeToEEPROM(add, speed);
+	add += writeToEEPROM(add, minPos);
+	add += writeToEEPROM(add, maxPos);
+
+}
+
+
+void Joint::recallState(int aAddress){
+
+	int add = aAddress;
+	add += readFromEEPROM(add, position);
+	add += readFromEEPROM(add, target);
+	add += readFromEEPROM(add, speed);
+	add += readFromEEPROM(add, minPos);
+	add += readFromEEPROM(add, maxPos);
+
 }

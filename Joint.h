@@ -23,7 +23,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "Arduino.h"
 #include <Servo.h>
-
+#include <EepromFuncs.h>
 
 
 class Joint : public Servo {
@@ -63,6 +63,9 @@ public:
 	void stop();
 
 	boolean run();
+
+	void saveState(int);
+	void recallState(int);
 
 
 

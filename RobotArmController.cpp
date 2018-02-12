@@ -20,10 +20,11 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "RobotArmController.h"
 
-char inputBuffer[MAX_COMMAND_LENGTH];
+//char inputBuffer[MAX_COMMAND_LENGTH];
 uint8_t index = 0;
 boolean receiving = false;
 
+StreamParser parser(&Serial, '<', '>', parseCommand);
 
 
 Joint joints[NUMBER_OF_JOINTS] = {
@@ -32,7 +33,7 @@ Joint joints[NUMBER_OF_JOINTS] = {
 		Joint("Elbow", 6, 880),
 		Joint("Wrist", 7, 895),
 		Joint("Rotate", 8, 1485),
-		Joint("Grip", 9, 145),
+		Joint("Grip", 9, 2150),
 		Joint("Pan", A0, 1350),
 		Joint("Tilt", A1, 1220)
 };
@@ -41,43 +42,61 @@ Arm_Class arm(joints, NUMBER_OF_JOINTS);
 
 void setup() {
 
+	// Servo Power Enable
+	pinMode(A3, OUTPUT);
+	digitalWrite(A3, LOW);
+
 	Serial.begin(SER_BAUD);
 //	pinMode(PROBLEM_LED, OUTPUT);
 //	digitalWrite(PROBLEM_LED, LOW);
 	pinMode(HEARTLED, OUTPUT);
 	digitalWrite(HEARTLED, LOW);
 
+	for (int i = 0; i < 5; i++){
+		digitalWrite(HEARTLED, HIGH);
+		delay(100);
+		digitalWrite(HEARTLED, LOW);
+		delay(100);
+	}
+
+
+
 	arm.init();
-	arm.readPosition(24);  // 24 is where I saved the start position for the arm.
+	delay(250);
+	digitalWrite(A3, HIGH);
+	delay(5000);
+	arm.gotoPosition(144);  // Sitting Home
 }
 
 void loop() {
 
-	if (Serial.available()) {
-
-		char c = Serial.read();
-
-		if (c == START_OP) {
-			index = 0;
-			inputBuffer[index] = 0;
-			receiving = true;
-		}
-
-		if (receiving) {
-			inputBuffer[index] = c;
-			inputBuffer[++index] = 0;
-
-			if (c == END_OP) {
-				receiving = false;
-				parseCommand();
-			}
-
-		}
-
-	}
-
-	heartbeat();
 	arm.run();
+	parser.run();
+	heartbeat();
+
+//	if (Serial.available()) {
+//
+//		char c = Serial.read();
+//
+//		if (c == START_OP) {
+//			index = 0;
+//			inputBuffer[index] = 0;
+//			receiving = true;
+//		}
+//
+//		if (receiving) {
+//			inputBuffer[index] = c;
+//			inputBuffer[++index] = 0;
+//
+//			if (c == END_OP) {
+//				receiving = false;
+//				parseCommand();
+//			}
+//
+//		}
+//
+//	}
+
 }
 
 void heartbeat() {
@@ -89,13 +108,15 @@ void heartbeat() {
 	}
 }
 
-void parseCommand() {
-
+void parseCommand(char* aCommand) {
+	char inBuf[MAX_COMMAND_LENGTH];
+	strncpy(inBuf, aCommand, MAX_COMMAND_LENGTH -1);
+	inBuf[MAX_COMMAND_LENGTH -1] = 0;
 	int jointIndex = -1;
 
-	if (inputBuffer[0] == '<') {
+	if (inBuf[0] == '<') {
 		char* delimiters = "<,>";
-		for (char* p = strtok(inputBuffer, delimiters); p != NULL;
+		for (char* p = strtok(inBuf, delimiters); p != NULL;
 				p = strtok(NULL, delimiters)) {
 
 			//  S sets the active servo
@@ -133,6 +154,10 @@ void parseCommand() {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					joints[jointIndex].stop();
 				}
+			} else if (p[0] == 'P') {
+				digitalWrite(A3, HIGH);
+			} else if (p[0] == 'p') {
+				digitalWrite(A3, LOW);
 			}
 			//  Raw numbers get written to the currently active servo
 			else if (isDigit(p[0])){
@@ -145,7 +170,7 @@ void parseCommand() {
 		}
 
 		// clear the command
-		inputBuffer[0] = 0;
+		inBuf[0] = 0;
 	}
 
 }

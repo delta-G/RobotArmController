@@ -26,6 +26,10 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include <EepromFuncs.h>
 
 #define EEPROM_START 24
+#define EEPROM_INITIAL_STATES 48
+#define EEPROM_POSITION_STANDING 128
+#define EEPROM_POSITION_SITTING 144
+
 
 class Arm_Class {
 
@@ -45,6 +49,11 @@ public:
 	void run();
 	void savePosition(int);
 	void readPosition(int);
+
+	void saveAllStates(int);
+	void getAllStates(int);
+
+	void gotoPosition(int);
 
 };
 

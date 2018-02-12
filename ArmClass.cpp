@@ -45,6 +45,8 @@ void Arm_Class::addJoint(int i, Joint j){
 void Arm_Class::init(){
 	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
 		joints[i].init();
+		joints[i].recallState((i*10)+EEPROM_INITIAL_STATES);
+		joints[i].run();
 	}
 }
 
@@ -65,11 +67,33 @@ void Arm_Class::savePosition(int aAddress){
 	}
 }
 
-void Arm_Class::readPosition(int aAddress){
-	int add = aAddress;
+void Arm_Class::gotoPosition(int aAddress){
+
+	int a = aAddress;
+	int t;
+
 	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
-		int p;
-		add += readFromEEPROM(add, p);
-		joints[i].moveToImmediate(p);
+		a += readFromEEPROM(a, t);
+		joints[i].setTarget(t);
 	}
 }
+
+void Arm_Class::saveAllStates(int aAddress){
+
+	int add = aAddress;
+	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+		joints[i].saveState(add);
+		add += 10;
+	}
+}
+
+void Arm_Class::getAllStates(int aAddress){
+
+	int add = aAddress;
+	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+		joints[i].recallState(add);
+		add += 10;
+	}
+}
+
+
