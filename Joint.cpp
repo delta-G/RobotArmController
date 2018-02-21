@@ -135,3 +135,35 @@ void Joint::recallState(int aAddress){
 	add += readFromEEPROM(add, maxPos);
 
 }
+
+
+
+
+void Joint::followTheStick(int aReading){
+
+	int res = map(aReading, -32768, 32767, minPos, maxPos);
+	setTarget(res);
+
+}
+
+
+void Joint::useStick(int aReading){
+
+
+	//  **TODO
+	/*
+	 *
+	 * We need for this to affect the speed variable and we need min and max
+	 * speeds.  It's OK if they are calculated in function but we need to
+	 * think about how we're going to do that.
+	 *
+	 * We could even use the method from DiscoBot where we use the
+	 * known time dif but I'd rather not rely on that when we have
+	 * unknowns about transmission speeds.
+	 *
+	 *
+	 */
+
+
+
+}

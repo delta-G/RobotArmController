@@ -67,7 +67,8 @@ public:
 	void saveState(int);
 	void recallState(int);
 
-
+	void followTheStick(int);
+	void useStick(int);
 
 
 };
