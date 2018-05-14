@@ -24,7 +24,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 uint8_t index = 0;
 boolean receiving = false;
 
-StreamParser parser(&Serial, '<', '>', parseCommand);
+StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
 
 
 Joint joints[NUMBER_OF_JOINTS] = {
@@ -46,7 +46,7 @@ void setup() {
 	pinMode(A3, OUTPUT);
 	digitalWrite(A3, LOW);
 
-	Serial.begin(SER_BAUD);
+	Serial.begin(ARM_BOARD_BAUD);
 //	pinMode(PROBLEM_LED, OUTPUT);
 //	digitalWrite(PROBLEM_LED, LOW);
 	pinMode(HEARTLED, OUTPUT);
