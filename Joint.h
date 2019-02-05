@@ -25,6 +25,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include <Servo.h>
 #include <EepromFuncs.h>
 
+#include "ServoCalibration.h"
 
 class Joint : public Servo {
 
@@ -33,9 +34,9 @@ private:
 	uint8_t pin;
 	uint16_t position;
 	uint16_t target;
-	uint16_t speed;
-	uint16_t minPos;
-	uint16_t maxPos;
+	uint16_t speed;   /// us of change in pulse width per second
+
+	ServoCalibrationStruct calibration;
 
 	uint16_t max_refresh_rate;
 
@@ -45,10 +46,12 @@ public:
 
 
 	Joint(char* name, uint8_t aPin, uint16_t aPos);
+	Joint(char* name, uint8_t aPin, uint16_t aPos, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
 
 	void init();
 
-	void moveToImmediate(uint16_t aPos);
+	void moveToImmediate(uint16_t);
+	void moveToImmediateAngle(float);
 
 	uint8_t getPin();
 	uint16_t getPosition();
@@ -56,14 +59,21 @@ public:
 
 	boolean onTarget();
 
-	void setTarget(uint16_t);
-	void setTarget(uint16_t, uint16_t);
+	uint16_t setTarget(uint16_t);
+	uint16_t setTarget(uint16_t, uint16_t);
 	void setSpeed(uint16_t);
+
+	float getAngle();
+	float setTargetAngle(float);
+	float setTargetAngle(float, uint16_t);
+
 
 	void stop();
 
 	boolean run();
 
+	void saveCalibration(int);
+	void loadCalibration(int);
 	void saveState(int);
 	void recallState(int);
 

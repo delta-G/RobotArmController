@@ -37,22 +37,22 @@ Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 
 
 void Arm_Class::addJoint(int i, Joint j){
-	if((i >=0)  && (i < NUMBER_OF_JOINTS)){
+	if((i >=0)  && (i < numJoints)){
 		joints[i] = j;
 	}
 }
 
 void Arm_Class::init(){
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+	for(int i = 0; i < numJoints; i++){
 		joints[i].init();
-		joints[i].recallState((i*10)+EEPROM_INITIAL_STATES);
+		joints[i].recallState((i*6)+EEPROM_INITIAL_STATES);
 		joints[i].run();
 	}
 }
 
 
 void Arm_Class::run(){
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+	for(int i = 0; i < numJoints; i++){
 			joints[i].run();
 		}
 }
@@ -61,7 +61,7 @@ void Arm_Class::run(){
 
 void Arm_Class::savePosition(int aAddress){
 	int add = aAddress;
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+	for(int i = 0; i < numJoints; i++){
 		int p = joints[i].getPosition();
 		add += writeToEEPROM(add, p );
 	}
@@ -72,7 +72,7 @@ void Arm_Class::gotoPosition(int aAddress){
 	int a = aAddress;
 	int t;
 
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+	for(int i = 0; i < numJoints; i++){
 		a += readFromEEPROM(a, t);
 		joints[i].setTarget(t);
 	}
@@ -81,18 +81,18 @@ void Arm_Class::gotoPosition(int aAddress){
 void Arm_Class::saveAllStates(int aAddress){
 
 	int add = aAddress;
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+	for(int i = 0; i < numJoints; i++){
 		joints[i].saveState(add);
-		add += 10;
+		add += 6;
 	}
 }
 
 void Arm_Class::getAllStates(int aAddress){
 
 	int add = aAddress;
-	for(int i = 0; i < NUMBER_OF_JOINTS; i++){
+	for(int i = 0; i < numJoints; i++){
 		joints[i].recallState(add);
-		add += 10;
+		add += 6;
 	}
 }
 
