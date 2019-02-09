@@ -144,31 +144,35 @@ boolean Joint::run() {
 	return (position == target);
 }
 
-void Joint::saveCalibration(int aAddress){
-	calibration.saveCalibration(aAddress);
+int Joint::saveCalibration(int aAddress){
+	return calibration.saveCalibration(aAddress);
 }
 
-void Joint::loadCalibration(int aAddress){
-	calibration.readCalibration(aAddress);
+int Joint::loadCalibration(int aAddress){
+	return calibration.readCalibration(aAddress);
 }
 
 
 //  Saves 3 ints for a total of 6 bytes.
-void Joint::saveState(int aAddress){
+int Joint::saveState(int aAddress){
 
-	int add = aAddress;
-	add += writeToEEPROM(add, position);
-	add += writeToEEPROM(add, target);
-	add += writeToEEPROM(add, speed);
+	int add = 0;
+	add += writeToEEPROM(aAddress + add, position);
+	add += writeToEEPROM(aAddress + add, target);
+	add += writeToEEPROM(aAddress + add, speed);
+
+	return add;
 }
 
 
-void Joint::recallState(int aAddress){
+int Joint::recallState(int aAddress){
 
-	int add = aAddress;
-	add += readFromEEPROM(add, position);
-	add += readFromEEPROM(add, target);
-	add += readFromEEPROM(add, speed);
+	int add = 0;
+	add += readFromEEPROM(aAddress + add, position);
+	add += readFromEEPROM(aAddress + add, target);
+	add += readFromEEPROM(aAddress + add, speed);
+
+	return add;
 
 }
 

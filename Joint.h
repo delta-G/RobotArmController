@@ -72,10 +72,10 @@ public:
 
 	boolean run();
 
-	void saveCalibration(int);
-	void loadCalibration(int);
-	void saveState(int);
-	void recallState(int);
+	int saveCalibration(int);
+	int loadCalibration(int);
+	int saveState(int);
+	int recallState(int);
 
 	void followTheStick(int);
 	void useStick(int);

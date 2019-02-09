@@ -78,23 +78,25 @@ float ServoCalibrationStruct::constrainAngle(float aAngle) {
 }
 
 
-void ServoCalibrationStruct::saveCalibration(int address) {
+int ServoCalibrationStruct::saveCalibration(int address) {
 
-	int add = address;
-	add += writeToEEPROM(add, minimumMicros);
-	add += writeToEEPROM(add, minimumAngle);
-	add += writeToEEPROM(add, maximumMicros);
-	add += writeToEEPROM(add, maximumAngle);
+	int add = 0;
+	add += writeToEEPROM(address + add, minimumMicros);
+	add += writeToEEPROM(address + add, minimumAngle);
+	add += writeToEEPROM(address + add, maximumMicros);
+	add += writeToEEPROM(address + add, maximumAngle);
+	return add;
 
 }
 
-void ServoCalibrationStruct::readCalibration(int address) {
+int ServoCalibrationStruct::readCalibration(int address) {
 
-	int add = address;
-	add += readFromEEPROM(add, minimumMicros);
-	add += readFromEEPROM(add, minimumAngle);
-	add += readFromEEPROM(add, maximumMicros);
-	add += readFromEEPROM(add, maximumAngle);
+	int add = 0;
+	add += readFromEEPROM(address + add, minimumMicros);
+	add += readFromEEPROM(address + add, minimumAngle);
+	add += readFromEEPROM(address + add, maximumMicros);
+	add += readFromEEPROM(address + add, maximumAngle);
+	return add;
 
 }
 

@@ -38,8 +38,8 @@ struct ServoCalibrationStruct {
 	uint16_t constrainMicros(uint16_t aMicros);
 	float constrainAngle(float aAngle);
 
-	void saveCalibration(int);
-	void readCalibration(int);
+	int saveCalibration(int);
+	int readCalibration(int);
 
 	void calibrate(uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
 
