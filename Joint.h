@@ -57,7 +57,7 @@ public:
 	uint16_t getPosition();
 	char* getName();
 
-	boolean onTarget();
+	boolean isMoving();
 
 	uint16_t setTarget(uint16_t);
 	uint16_t setTarget(uint16_t, uint16_t);

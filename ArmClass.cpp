@@ -27,7 +27,6 @@ Arm_Class::Arm_Class(){
 	joints = 0;
 	numJoints = NUMBER_OF_JOINTS;
 
-
 }
 
 Arm_Class::Arm_Class(Joint* aJoints, int aNum){
@@ -43,9 +42,9 @@ void Arm_Class::addJoint(int i, Joint j){
 }
 
 void Arm_Class::init(){
+	loadAll(EEPROM_INITIAL_STATES);
 	for(int i = 0; i < numJoints; i++){
 		joints[i].init();
-		joints[i].recallState((i*6)+EEPROM_INITIAL_STATES);
 		joints[i].run();
 	}
 }
@@ -55,6 +54,16 @@ void Arm_Class::run(){
 	for(int i = 0; i < numJoints; i++){
 			joints[i].run();
 		}
+}
+
+boolean Arm_Class::isMoving(){
+
+	for(int i = 0; i< numJoints; i++){
+		if(joints[i].isMoving()){
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -68,6 +77,8 @@ int Arm_Class::savePosition(int aAddress){
 	return add;
 }
 
+
+//  Sends Robot to a position with the speed values it already has.
 int Arm_Class::gotoPosition(int aAddress){
 
 	int a = 0;
@@ -80,22 +91,53 @@ int Arm_Class::gotoPosition(int aAddress){
 	return a;
 }
 
-int Arm_Class::saveAllStates(int aAddress){
+
+//  Sets both the target and the position and speed.
+//  It is the responsibility of the caller to make
+//  sure that the arm gets to this position before
+//  another is fed.
+
+int Arm_Class::loadMovement(int aAddress) {
+	int a = 0;
+	int t;
+	int s;
+
+	for (int i = 0; i < numJoints; i++) {
+		a += readFromEEPROM(aAddress + a, t);
+		a += readFromEEPROM(aAddress + a, s);
+
+		joints[i].setTarget(t);
+		joints[i].setSpeed(s);
+	}
+	return a;
+}
+
+int Arm_Class::loadAll(int aAdress){
+	int x = loadStates(aAdress);
+	loadCalibrations(aAdress + x);
+	return x;
+}
+
+int Arm_Class::saveAll(int aAdress){
+	int x = saveStates(aAdress);
+	saveCalibrations(aAdress + x);
+	return x;
+}
+
+int Arm_Class::saveStates(int aAddress){
 
 	int add = 0;
 	for(int i = 0; i < numJoints; i++){
 		add += joints[i].saveState(aAddress + add);
-
 	}
 	return add;
 }
 
-int Arm_Class::getAllStates(int aAddress){
+int Arm_Class::loadStates(int aAddress){
 
 	int add = 0;
 	for(int i = 0; i < numJoints; i++){
 		add += joints[i].recallState(aAddress + add);
-
 	}
 	return add;
 }
@@ -105,7 +147,6 @@ int Arm_Class::saveCalibrations(int aAddress){
 	int add = 0;
 	for(int i = 0; i < numJoints; i++){
 		add += joints[i].saveCalibration(aAddress + add);
-
 	}
 	return add;
 }
@@ -115,7 +156,6 @@ int Arm_Class::loadCalibrations(int aAddress){
 	int add = 0;
 	for(int i = 0; i < numJoints; i++){
 		add += joints[i].loadCalibration(aAddress + add);
-
 	}
 	return add;
 }

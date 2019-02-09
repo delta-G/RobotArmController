@@ -47,15 +47,20 @@ public:
 	void addJoint(int, Joint);
 	void init();
 	void run();
+	boolean isMoving();
+
 	int savePosition(int);
 //	int readPosition(int);
 
-	int saveAllStates(int);
-	int getAllStates(int);
+	int saveAll(int);
+	int loadAll(int);
+	int saveStates(int);
+	int loadStates(int);
 	int saveCalibrations(int);
 	int loadCalibrations(int);
 
 	int gotoPosition(int);
+	int loadMovement(int);
 
 };
 

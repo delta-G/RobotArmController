@@ -48,6 +48,10 @@ void Joint::init(){
 	attach(pin);
 }
 
+boolean Joint::isMoving(){
+	return (position != target);
+}
+
 void Joint::moveToImmediate(uint16_t aPos) {
 	aPos = calibration.constrainMicros(aPos);
 	write(aPos);
@@ -197,6 +201,15 @@ void Joint::useStick(int aReading){
 	 * speeds.  It's OK if they are calculated in function but we need to
 	 * think about how we're going to do that.
 	 *
+	 * SOOOOOOO
+	 * Lets scale the input between 0 and 1 for this and then multiply that
+	 * times our speed variable and set the speed by that.  We just need to
+	 * think of a reasonable time in the future to set the target value
+	 * or do we set it with move to immediates and hope it's fast enough?
+	 * We could just track the last update time and go from there based on
+	 * the speed we come up with.  Yeah, let's try that first.
+	 *
+	 *
 	 * We could even use the method from DiscoBot where we use the
 	 * known time dif but I'd rather not rely on that when we have
 	 * unknowns about transmission speeds.
@@ -204,6 +217,15 @@ void Joint::useStick(int aReading){
 	 *
 	 */
 
+	static unsigned long pm = millis();
+	unsigned long cm = millis();
 
+	float timeScale = 1000 / (cm - pm);  // speed is in microsecond steps per second
+	float speedRatio = (float)aReading / 32767;
+	uint16_t step = speed * speedRatio * timeScale;
 
+	if((step >= 1)||(step <= -1)){
+		moveToImmediate(position + step);
+		pm = cm;
+	}
 }
