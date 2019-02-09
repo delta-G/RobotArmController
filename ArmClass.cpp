@@ -59,41 +59,66 @@ void Arm_Class::run(){
 
 
 
-void Arm_Class::savePosition(int aAddress){
-	int add = aAddress;
+int Arm_Class::savePosition(int aAddress){
+	int add = 0;
 	for(int i = 0; i < numJoints; i++){
 		int p = joints[i].getPosition();
-		add += writeToEEPROM(add, p );
+		add += writeToEEPROM(aAddress + add, p );
 	}
+	return add;
 }
 
-void Arm_Class::gotoPosition(int aAddress){
+int Arm_Class::gotoPosition(int aAddress){
 
-	int a = aAddress;
+	int a = 0;
 	int t;
 
 	for(int i = 0; i < numJoints; i++){
-		a += readFromEEPROM(a, t);
+		a += readFromEEPROM(aAddress + a, t);
 		joints[i].setTarget(t);
 	}
+	return a;
 }
 
-void Arm_Class::saveAllStates(int aAddress){
+int Arm_Class::saveAllStates(int aAddress){
 
-	int add = aAddress;
+	int add = 0;
 	for(int i = 0; i < numJoints; i++){
-		joints[i].saveState(add);
-		add += 6;
+		add += joints[i].saveState(aAddress + add);
+
 	}
+	return add;
 }
 
-void Arm_Class::getAllStates(int aAddress){
+int Arm_Class::getAllStates(int aAddress){
 
-	int add = aAddress;
+	int add = 0;
 	for(int i = 0; i < numJoints; i++){
-		joints[i].recallState(add);
-		add += 6;
+		add += joints[i].recallState(aAddress + add);
+
 	}
+	return add;
 }
+
+int Arm_Class::saveCalibrations(int aAddress){
+
+	int add = 0;
+	for(int i = 0; i < numJoints; i++){
+		add += joints[i].saveCalibration(aAddress + add);
+
+	}
+	return add;
+}
+
+int Arm_Class::loadCalibrations(int aAddress){
+
+	int add = 0;
+	for(int i = 0; i < numJoints; i++){
+		add += joints[i].loadCalibration(aAddress + add);
+
+	}
+	return add;
+}
+
 
 
