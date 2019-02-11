@@ -47,6 +47,7 @@ public:
 	void addJoint(int, Joint);
 	void init();
 	void run();
+	void stop();
 	boolean isMoving();
 
 	int savePosition(int);

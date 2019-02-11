@@ -36,6 +36,8 @@ private:
 	uint16_t target;
 	uint16_t speed;   /// us of change in pulse width per second
 
+	uint32_t lastStickUpdate;
+
 	ServoCalibrationStruct calibration;
 
 	uint16_t max_refresh_rate;

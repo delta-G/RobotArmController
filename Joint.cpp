@@ -25,7 +25,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	pin = aPin;
 	position = aPos;
 	target = aPos;
-	speed = 5;
+	speed = 100;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
@@ -37,7 +37,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aMinMicros, floa
 	pin = aPin;
 	position = aPos;
 	target = aPos;
-	speed = 5;
+	speed = 100;
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
@@ -46,6 +46,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aMinMicros, floa
 
 void Joint::init(){
 	attach(pin);
+	moveToImmediate(position);
 }
 
 boolean Joint::isMoving(){
@@ -57,6 +58,9 @@ void Joint::moveToImmediate(uint16_t aPos) {
 	write(aPos);
 	position = aPos;
 	target = position;
+	Serial.print("<MTI,");
+	Serial.print(aPos);
+	Serial.print(">");
 }
 
 void Joint::moveToImmediateAngle(float aAng) {
@@ -77,11 +81,6 @@ uint16_t Joint::getPosition(){
 float Joint::getAngle() {
 	return calibration.microsToAngle(getPosition());
 }
-
-boolean Joint::onTarget(){
-	return position == target;
-}
-
 
 char* Joint::getName(){
 	return name;
@@ -123,28 +122,28 @@ void Joint::stop() {
 
 boolean Joint::run() {
 
-	static unsigned long prev = millis();
-	unsigned long cur = millis();
-	unsigned long deltaTime = cur - prev;
-	prev = cur;
-
-	if (position != target) {
-
-		//  Speed in us pulse time per ms of real time
-		//  What would be the max?
-		unsigned long deltaPulse = deltaTime * speed / 1000;
-//		uint16_t deltaTarget = position - target;
-//		if(abs(deltaTarget) < deltaPulse) deltaPulse = abs(deltaTarget);
-
-		if(target < position){
-			position -= deltaPulse;
-		}
-		else {
-			position += deltaPulse;
-		}
-		position = calibration.constrainMicros(position);
-	}
-	write(position);
+//	static unsigned long prev = millis();
+//	unsigned long cur = millis();
+//	unsigned long deltaTime = cur - prev;
+//	prev = cur;
+//
+//	if (position != target) {
+//
+//		//  Speed in us pulse time per ms of real time
+//		//  What would be the max?
+//		unsigned long deltaPulse = deltaTime * speed / 1000;
+////		uint16_t deltaTarget = position - target;
+////		if(abs(deltaTarget) < deltaPulse) deltaPulse = abs(deltaTarget);
+//
+//		if(target < position){
+//			position -= deltaPulse;
+//		}
+//		else {
+//			position += deltaPulse;
+//		}
+//		position = calibration.constrainMicros(position);
+//	}
+//	write(position);
 	return (position == target);
 }
 
@@ -217,15 +216,26 @@ void Joint::useStick(int aReading){
 	 *
 	 */
 
-	static unsigned long pm = millis();
+
+
+
+
 	unsigned long cm = millis();
 
-	float timeScale = 1000 / (cm - pm);  // speed is in microsecond steps per second
-	float speedRatio = (float)aReading / 32767;
-	uint16_t step = speed * speedRatio * timeScale;
+	//The delta time should be last time since a
+	//move or a zero reading from the stick.
+
+	if(aReading == 0){
+		lastStickUpdate = cm;
+		return;
+	}
+
+	float timeScale = (cm - lastStickUpdate) / 1000.0;  // speed is in microsecond steps per second
+	float speedRatio = (float)aReading / 32767.0;
+	int16_t step = speed * speedRatio * timeScale;
 
 	if((step >= 1)||(step <= -1)){
 		moveToImmediate(position + step);
-		pm = cm;
+		lastStickUpdate = cm;
 	}
 }

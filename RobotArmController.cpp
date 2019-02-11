@@ -24,16 +24,20 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 uint8_t index = 0;
 boolean receiving = false;
 
+boolean connected = false;
+
+unsigned int hearbeatDelay = 250;
+
 StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
 
-
+//  Joint (name, pin, starting pos, min us, min angle, max us, max angle)
 Joint joints[NUMBER_OF_JOINTS] = {
-		Joint("Base", 4, 1525),
-		Joint("Shoulder", 5, 1080),
-		Joint("Elbow", 6, 880),
-		Joint("Wrist", 7, 895),
-		Joint("Rotate", 8, 1485),
-		Joint("Grip", 9, 2150),
+		Joint("Base", 4, 1500, 544, 0, 2400, PI),
+		Joint("Shoulder", 5, 1215, 544, 0, 2400, PI),
+		Joint("Elbow", 6, 1215, 544, 0, 2400, PI),
+		Joint("Wrist", 7, 1500, 544, 0, 2400, PI),
+		Joint("Rotate", 8, 1500, 544, 0, 2400, PI),
+		Joint("Grip", 9, 1781, 1680, 1.923, 2400, PI),
 		Joint("Pan", A0, 1350),
 		Joint("Tilt", A1, 1220)
 };
@@ -63,9 +67,17 @@ void setup() {
 
 	arm.init();
 	delay(250);
-	digitalWrite(A3, HIGH);
+//	digitalWrite(A3, HIGH);
 	delay(5000);
-	arm.gotoPosition(144);  // Sitting Home
+//	arm.gotoPosition(144);  // Sitting Home
+
+	while(!connected){
+		heartbeat();
+		parser.run();
+	}
+
+	hearbeatDelay = 1000;
+
 }
 
 void loop() {
@@ -102,7 +114,7 @@ void loop() {
 void heartbeat() {
 	static unsigned long pt = millis();
 	unsigned long ct = millis();
-	if (ct - pt >= 500) {
+	if (ct - pt >= hearbeatDelay) {
 		digitalWrite(HEARTLED, !digitalRead(HEARTLED));
 		pt = ct;
 	}
@@ -130,8 +142,8 @@ void parseCommand(char* aCommand) {
 					Serial.print(i);
 					Serial.print(",");
 					Serial.print(joints[i].getPosition());
-					Serial.print(",");
-					Serial.print(joints[i].onTarget());
+//					Serial.print(",");
+//					Serial.print(joints[i].isMoving());
 					Serial.print(">");
 				}
 			} else if (p[0] == 'C') {
@@ -146,17 +158,20 @@ void parseCommand(char* aCommand) {
 					int spd = atoi((const char*) (p + 2));
 					joints[jointIndex].setSpeed(spd);
 				}
-			} else if (p[0] == 'X') {
-				for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
-					joints[i].stop();
+			} else if (p[0] == 'P') {
+				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
+					int stickPos = atoi((const char*) (p + 1));
+					joints[jointIndex].useStick(stickPos);
 				}
+			} else if (p[0] == 'X') {
+				arm.stop();
 			} else if (p[0] == 'x') {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					joints[jointIndex].stop();
 				}
-			} else if (p[0] == 'P') {
+			} else if (p[0] == 'E') {
 				digitalWrite(A3, HIGH);
-			} else if (p[0] == 'p') {
+			} else if (p[0] == 'e') {
 				digitalWrite(A3, LOW);
 			}
 			//  Raw numbers get written to the currently active servo
@@ -174,4 +189,5 @@ void parseCommand(char* aCommand) {
 	}
 
 }
+
 

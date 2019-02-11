@@ -22,6 +22,51 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #define NUMBER_OF_JOINTS 8
 
+
+enum State_Enum {READY, MOVING} state;
+
+void Arm_Class::run() {
+
+	State_Enum newState = state;
+
+	switch (state) {
+	case READY:
+		for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+			if (joints[i].isMoving()) {
+				newState = MOVING;
+			}
+		}
+		break;
+	case MOVING:
+		boolean done = true;
+		for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+			if (joints[i].isMoving()) {
+				done = false;
+			}
+		}
+		if (done) {
+			newState = READY;
+		}
+		break;
+
+	}
+
+	if(newState != state){
+		if(newState == READY){
+			Serial.print("<ARM_READY>");
+		}
+	}
+
+	state = newState;
+
+	for (int i = 0; i < numJoints; i++) {
+		joints[i].run();
+	}
+}
+
+
+
+
 Arm_Class::Arm_Class(){
 
 	joints = 0;
@@ -42,17 +87,19 @@ void Arm_Class::addJoint(int i, Joint j){
 }
 
 void Arm_Class::init(){
-	loadAll(EEPROM_INITIAL_STATES);
+//	loadAll(EEPROM_INITIAL_STATES);
 	for(int i = 0; i < numJoints; i++){
 		joints[i].init();
-		joints[i].run();
+		delay(250);
 	}
 }
 
 
-void Arm_Class::run(){
-	for(int i = 0; i < numJoints; i++){
-			joints[i].run();
+
+
+void Arm_Class::stop() {
+	for (int i = 0; i < numJoints; i++) {
+			joints[i].stop();
 		}
 }
 
