@@ -27,6 +27,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	target = aPos;
 	speed = 100;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
+	lastStickUpdate = millis();
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
 	max_refresh_rate = 100;
@@ -38,6 +39,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aMinMicros, floa
 	position = aPos;
 	target = aPos;
 	speed = 100;
+	lastStickUpdate = millis();
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 

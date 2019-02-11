@@ -24,9 +24,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 uint8_t index = 0;
 boolean receiving = false;
 
-boolean connected = false;
 
-unsigned int hearbeatDelay = 250;
+unsigned int heartbeatDelay = 250;
 
 StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
 
@@ -44,15 +43,20 @@ Joint joints[NUMBER_OF_JOINTS] = {
 
 Arm_Class arm(joints, NUMBER_OF_JOINTS);
 
+//  declared in Defines.h for everyone to use.
+boolean eepromGood(){
+	byte flag = EEPROM.read(EEPROM_START_FLAG);
+	return (flag == EEPROM_START_VALUE);
+}
+
+
 void setup() {
 
 	// Servo Power Enable
-	pinMode(A3, OUTPUT);
-	digitalWrite(A3, LOW);
+	pinMode(SERVO_POWER_PIN, OUTPUT);
+	digitalWrite(SERVO_POWER_PIN, LOW);  //powers arm OFF
 
 	Serial.begin(ARM_BOARD_BAUD);
-//	pinMode(PROBLEM_LED, OUTPUT);
-//	digitalWrite(PROBLEM_LED, LOW);
 	pinMode(HEARTLED, OUTPUT);
 	digitalWrite(HEARTLED, LOW);
 
@@ -63,20 +67,19 @@ void setup() {
 		delay(100);
 	}
 
-
+	//TODO:  COMMENT THIS BACK OUT
+	EEPROM.write(0, 0x47);
+	EEPROM.write(1, 0xFF);
+	//TODO:  COMMENT THIS BACK OUT
 
 	arm.init();
 	delay(250);
-//	digitalWrite(A3, HIGH);
-	delay(5000);
-//	arm.gotoPosition(144);  // Sitting Home
 
-	while(!connected){
-		heartbeat();
-		parser.run();
+	heartbeatDelay = 500;
+
+	if(!eepromGood()){
+		heartbeatDelay = 100;
 	}
-
-	hearbeatDelay = 1000;
 
 }
 
@@ -86,39 +89,33 @@ void loop() {
 	parser.run();
 	heartbeat();
 
-//	if (Serial.available()) {
-//
-//		char c = Serial.read();
-//
-//		if (c == START_OP) {
-//			index = 0;
-//			inputBuffer[index] = 0;
-//			receiving = true;
-//		}
-//
-//		if (receiving) {
-//			inputBuffer[index] = c;
-//			inputBuffer[++index] = 0;
-//
-//			if (c == END_OP) {
-//				receiving = false;
-//				parseCommand();
-//			}
-//
-//		}
-//
-//	}
-
 }
 
 void heartbeat() {
 	static unsigned long pt = millis();
 	unsigned long ct = millis();
-	if (ct - pt >= hearbeatDelay) {
+	if (ct - pt >= heartbeatDelay) {
 		digitalWrite(HEARTLED, !digitalRead(HEARTLED));
 		pt = ct;
 	}
 }
+
+void powerUpServos(){
+	arm.detachAll();
+	delay(10);
+	digitalWrite(A3, HIGH);
+	delay(10);
+	arm.init();   // 2 seconds of blocking delay !!!!
+}
+
+
+void powerDownServos(){
+	arm.detachAll();
+	delay(10);
+	digitalWrite(A3, LOW);
+	delay(10);
+}
+
 
 void parseCommand(char* aCommand) {
 	char inBuf[MAX_COMMAND_LENGTH];
@@ -146,8 +143,14 @@ void parseCommand(char* aCommand) {
 //					Serial.print(joints[i].isMoving());
 					Serial.print(">");
 				}
+			} else if (p[0] == 'B') {
+				Serial.print("<Booted / Connected>");
 			} else if (p[0] == 'C') {
-				Serial.print("<C,0>");
+				Serial.print("<SavCal>");
+				arm.saveCalibrations(EEPROM_CALIBRATION_START);
+			} else if (p[0] == 'c') {
+				Serial.print("<LodCal>");
+				arm.loadCalibrations(EEPROM_CALIBRATION_START);
 			} else if (p[0] == 'T') {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					int targ = atoi((const char*) (p + 2));
@@ -170,9 +173,9 @@ void parseCommand(char* aCommand) {
 					joints[jointIndex].stop();
 				}
 			} else if (p[0] == 'E') {
-				digitalWrite(A3, HIGH);
+				powerUpServos();
 			} else if (p[0] == 'e') {
-				digitalWrite(A3, LOW);
+				powerDownServos();
 			}
 			//  Raw numbers get written to the currently active servo
 			else if (isDigit(p[0])){

@@ -86,6 +86,7 @@ void Arm_Class::addJoint(int i, Joint j){
 	}
 }
 
+//  This has 2 seconds of delay in it for those who are counting.
 void Arm_Class::init(){
 //	loadAll(EEPROM_INITIAL_STATES);
 	for(int i = 0; i < numJoints; i++){
@@ -94,8 +95,19 @@ void Arm_Class::init(){
 	}
 }
 
+void Arm_Class::attachAll() {
+	for (int i = 0; i < numJoints; i++) {
+		joints[i].attach(joints[i].getPin());
+		delay(250);
+	}
+}
 
-
+void Arm_Class::detachAll() {
+	for (int i = 0; i < numJoints; i++) {
+		joints[i].detach();
+		delay(250);
+	}
+}
 
 void Arm_Class::stop() {
 	for (int i = 0; i < numJoints; i++) {
@@ -195,15 +207,23 @@ int Arm_Class::saveCalibrations(int aAddress){
 	for(int i = 0; i < numJoints; i++){
 		add += joints[i].saveCalibration(aAddress + add);
 	}
+	byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
+	flags &= ~FLAG_CALIBRATIONS_SAVED;  // flags are set as 0 since cleared EEPROM is 0xFF
+	EEPROM.write(1, flags);
 	return add;
 }
 
-int Arm_Class::loadCalibrations(int aAddress){
+int Arm_Class::loadCalibrations(int aAddress) {
 
 	int add = 0;
-	for(int i = 0; i < numJoints; i++){
-		add += joints[i].loadCalibration(aAddress + add);
+	byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
+	flags = ~flags;  // flags are set as 0 since cleared EEPROM is 0xFF
+	if (flags & FLAG_CALIBRATIONS_SAVED) {
+		for (int i = 0; i < numJoints; i++) {
+			add += joints[i].loadCalibration(aAddress + add);
+		}
 	}
+
 	return add;
 }
 
