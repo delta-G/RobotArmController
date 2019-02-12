@@ -55,8 +55,8 @@ public:
 	int loadAll(int);
 	int saveStates(int);
 	int loadStates(int);
-	int saveCalibrations(int);
-	int loadCalibrations(int);
+	int saveCalibrations();
+	int loadCalibrations();
 
 	int gotoPosition(int);
 	int loadMovement(int);

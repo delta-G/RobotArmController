@@ -44,6 +44,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #define EEPROM_POSITION_STANDING 256
 #define EEPROM_POSITION_SITTING 288
 
+#define EEPROM_POSITION(x) (512 + (x * 16))  // This leaves room for 512 / 16 == 32 positions to save
+
 
 boolean eepromGood();
 

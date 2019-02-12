@@ -119,8 +119,8 @@ void powerDownServos(){
 
 void parseCommand(char* aCommand) {
 	char inBuf[MAX_COMMAND_LENGTH];
-	strncpy(inBuf, aCommand, MAX_COMMAND_LENGTH -1);
-	inBuf[MAX_COMMAND_LENGTH -1] = 0;
+	strncpy(inBuf, aCommand, MAX_COMMAND_LENGTH - 1);
+	inBuf[MAX_COMMAND_LENGTH - 1] = 0;
 	int jointIndex = -1;
 
 	if (inBuf[0] == '<') {
@@ -128,12 +128,14 @@ void parseCommand(char* aCommand) {
 		for (char* p = strtok(inBuf, delimiters); p != NULL;
 				p = strtok(NULL, delimiters)) {
 
+			switch (p[0]) {
 			//  S sets the active servo
-			if (p[0] == 'S') {
+			case 'S': {
 				jointIndex = atoi((const char*) (p + 1));
+				break;
 			}
-			//  R for requests for data
-			else if (p[0] == 'R') {
+				//  R for requests for data
+			case 'R': {
 				for (uint8_t i = 0; i < NUMBER_OF_JOINTS; i++) {
 					Serial.print("<");
 					Serial.print(i);
@@ -143,48 +145,78 @@ void parseCommand(char* aCommand) {
 //					Serial.print(joints[i].isMoving());
 					Serial.print(">");
 				}
-			} else if (p[0] == 'B') {
+				break;
+			}
+			case 'B': {
 				Serial.print("<Booted / Connected>");
-			} else if (p[0] == 'C') {
+				break;
+			}
+			case 'C': {
 				Serial.print("<SavCal>");
-				arm.saveCalibrations(EEPROM_CALIBRATION_START);
-			} else if (p[0] == 'c') {
+				arm.saveCalibrations();
+				break;
+			}
+			case 'c': {
 				Serial.print("<LodCal>");
-				arm.loadCalibrations(EEPROM_CALIBRATION_START);
-			} else if (p[0] == 'T') {
+				arm.loadCalibrations();
+				break;
+			}
+			case 'T': {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int targ = atoi((const char*) (p + 2));
+					int targ = atoi((const char*) (p + 1));
 					joints[jointIndex].setTarget(targ);
 				}
-			} else if (p[0] == 's') {
+				break;
+			}
+			case 's': {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int spd = atoi((const char*) (p + 2));
+					int spd = atoi((const char*) (p + 1));
 					joints[jointIndex].setSpeed(spd);
 				}
-			} else if (p[0] == 'P') {
+				break;
+			}
+			case 'P': {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					int stickPos = atoi((const char*) (p + 1));
 					joints[jointIndex].useStick(stickPos);
 				}
-			} else if (p[0] == 'X') {
+				break;
+			}
+			case 'X': {
 				arm.stop();
-			} else if (p[0] == 'x') {
+				break;
+			}
+			case 'x': {
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					joints[jointIndex].stop();
 				}
-			} else if (p[0] == 'E') {
-				powerUpServos();
-			} else if (p[0] == 'e') {
-				powerDownServos();
+				break;
 			}
-			//  Raw numbers get written to the currently active servo
-			else if (isDigit(p[0])){
+			case 'E': {
+				powerUpServos();
+				break;
+			}
+			case 'e': {
+				powerDownServos();
+				break;
+			}
+				//  Raw numbers get written to the currently active servo
+			case '0' ... '9': {
 				int position = atoi((const char*) p);
 				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
 					joints[jointIndex].moveToImmediate(position);
 					// jointIndex = -1;   // comment this line to allow run-on commands
 				}
+				break;
 			}
+
+			default : {
+				Serial.print("<BADC,");
+				Serial.print(*p);
+				Serial.print(">");
+			}
+
+			} //  End of Switch
 		}
 
 		// clear the command
@@ -192,5 +224,3 @@ void parseCommand(char* aCommand) {
 	}
 
 }
-
-

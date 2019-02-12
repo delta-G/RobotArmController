@@ -128,26 +128,29 @@ boolean Arm_Class::isMoving(){
 
 
 int Arm_Class::savePosition(int aAddress){
-	int add = 0;
+	int add = (aAddress >= 32)? aAddress : EEPROM_POSITION(aAddress);
+	int offset = 0;
 	for(int i = 0; i < numJoints; i++){
 		int p = joints[i].getPosition();
-		add += writeToEEPROM(aAddress + add, p );
+		offset += writeToEEPROM(add + offset, p );
 	}
-	return add;
+	return offset;
 }
 
 
 //  Sends Robot to a position with the speed values it already has.
 int Arm_Class::gotoPosition(int aAddress){
 
-	int a = 0;
+
+	int add = (aAddress >= 32)? aAddress : EEPROM_POSITION(aAddress);
+	int offset = 0;
 	int t;
 
 	for(int i = 0; i < numJoints; i++){
-		a += readFromEEPROM(aAddress + a, t);
+		offset += readFromEEPROM(add + offset, t);
 		joints[i].setTarget(t);
 	}
-	return a;
+	return offset;
 }
 
 
@@ -173,13 +176,13 @@ int Arm_Class::loadMovement(int aAddress) {
 
 int Arm_Class::loadAll(int aAdress){
 	int x = loadStates(aAdress);
-	loadCalibrations(aAdress + x);
+	loadCalibrations();
 	return x;
 }
 
 int Arm_Class::saveAll(int aAdress){
 	int x = saveStates(aAdress);
-	saveCalibrations(aAdress + x);
+	saveCalibrations();
 	return x;
 }
 
@@ -201,11 +204,11 @@ int Arm_Class::loadStates(int aAddress){
 	return add;
 }
 
-int Arm_Class::saveCalibrations(int aAddress){
+int Arm_Class::saveCalibrations(){
 
 	int add = 0;
 	for(int i = 0; i < numJoints; i++){
-		add += joints[i].saveCalibration(aAddress + add);
+		add += joints[i].saveCalibration(EEPROM_CALIBRATION_START + add);
 	}
 	byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
 	flags &= ~FLAG_CALIBRATIONS_SAVED;  // flags are set as 0 since cleared EEPROM is 0xFF
@@ -213,14 +216,14 @@ int Arm_Class::saveCalibrations(int aAddress){
 	return add;
 }
 
-int Arm_Class::loadCalibrations(int aAddress) {
+int Arm_Class::loadCalibrations() {
 
 	int add = 0;
 	byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
 	flags = ~flags;  // flags are set as 0 since cleared EEPROM is 0xFF
 	if (flags & FLAG_CALIBRATIONS_SAVED) {
 		for (int i = 0; i < numJoints; i++) {
-			add += joints[i].loadCalibration(aAddress + add);
+			add += joints[i].loadCalibration(EEPROM_CALIBRATION_START + add);
 		}
 	}
 
