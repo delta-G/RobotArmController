@@ -49,7 +49,7 @@ void Arm_Class::run() {
 		}
 		break;
 
-	}
+	}  // end switch
 
 	if(newState != state){
 		if(newState == READY){

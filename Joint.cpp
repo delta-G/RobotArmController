@@ -26,6 +26,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	position = aPos;
 	target = aPos;
 	speed = 100;
+	moving = false;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
 	lastStickUpdate = millis();
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
@@ -39,6 +40,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aMinMicros, floa
 	position = aPos;
 	target = aPos;
 	speed = 100;
+	moving = false;
 	lastStickUpdate = millis();
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
 //	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
@@ -124,28 +126,47 @@ void Joint::stop() {
 
 boolean Joint::run() {
 
-//	static unsigned long prev = millis();
-//	unsigned long cur = millis();
-//	unsigned long deltaTime = cur - prev;
-//	prev = cur;
-//
-//	if (position != target) {
-//
-//		//  Speed in us pulse time per ms of real time
-//		//  What would be the max?
-//		unsigned long deltaPulse = deltaTime * speed / 1000;
-////		uint16_t deltaTarget = position - target;
-////		if(abs(deltaTarget) < deltaPulse) deltaPulse = abs(deltaTarget);
-//
-//		if(target < position){
-//			position -= deltaPulse;
-//		}
-//		else {
-//			position += deltaPulse;
-//		}
-//		position = calibration.constrainMicros(position);
-//	}
-//	write(position);
+	static unsigned long prev = millis();
+	unsigned long cur = millis();
+	unsigned long deltaTime = cur - prev;
+//	prev = cur;     //////////////////////////   This can't go here, it will never run...
+
+	if (position != target) {
+
+		if(!moving){
+			prev = cur; // reset our timer for the new move
+			moving = true;
+			return false;  // bail out until next run
+		}
+
+		//  Speed in us pulse time per ms of real time
+		//  What would be the max?
+		unsigned long deltaPulse = deltaTime * speed / 1000;
+//		uint16_t deltaTarget = position - target;
+//		if(abs(deltaTarget) < deltaPulse) deltaPulse = abs(deltaTarget);
+
+		if (deltaPulse > 0) {
+			if (target < position) {
+				position -= deltaPulse;
+				if(position < target){
+					position = target;
+				}
+			} else {
+				position += deltaPulse;
+				if(position > target){
+					position = target;
+				}
+			}
+			position = calibration.constrainMicros(position);
+			prev = cur;
+			if(position == target){
+				moving = false;
+			}
+		}
+
+	}
+	write(position);
+
 	return (position == target);
 }
 

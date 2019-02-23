@@ -28,6 +28,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include <Servo.h>
 #include <StreamParser.h>
+#include <EepromFuncs.h>
 
 #include "Joint.h"
 #include "ArmClass.h"
@@ -55,11 +56,12 @@ void loop();
 void heartbeat();
 
 void parseCommand(char* aCommand);
-
+void programEEPROM(char*);
 
 
 void powerUpServos();
 void powerDownServos();
+
 
 
 #endif /* _RobotArmController_H_ */

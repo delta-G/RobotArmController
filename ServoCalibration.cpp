@@ -24,12 +24,22 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 uint16_t ServoCalibrationStruct::angleToMicros(float angle){
 	uint16_t retval = 0;
 
+	Serial.print("<ATM,");
+	Serial.print(angle,3);
+	Serial.print(",");
+
+
 	// constrain the angle
 	angle = constrainAngle(angle);
 
 	float ratio = (angle - minimumAngle) / (maximumAngle - minimumAngle);
 
 	retval =  (ratio * (maximumMicros - minimumMicros)) + minimumMicros;
+
+	Serial.print(ratio,3);
+	Serial.print(",");
+	Serial.print(retval);
+	Serial.print(">");
 
 	return retval;
 }
@@ -69,10 +79,21 @@ uint16_t ServoCalibrationStruct::constrainMicros(uint16_t aMicros){
 
 float ServoCalibrationStruct::constrainAngle(float aAngle) {
 	float retval = aAngle;
-	if (retval < minimumAngle) {
+
+	if (minimumAngle < maximumAngle) {
+		if (retval < minimumAngle) {
+			retval = minimumAngle;
+		} else if (retval > maximumAngle) {
+			retval = maximumAngle;
+		}
+	} else if (minimumAngle > maximumAngle) {
+		if (retval > minimumAngle) {
+			retval = minimumAngle;
+		} else if (retval < maximumAngle) {
+			retval = maximumAngle;
+		}
+	} else {  // minimum and maximum are equal???
 		retval = minimumAngle;
-	} else if (retval > maximumAngle) {
-		retval = maximumAngle;
 	}
 	return retval;
 }
