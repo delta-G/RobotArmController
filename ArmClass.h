@@ -24,6 +24,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "Arduino.h"
 #include "Defines.h"
 #include "Joint.h"
+#include "SpacePoint.h"
+
 #include <EepromFuncs.h>
 
 
@@ -60,6 +62,8 @@ public:
 
 	int gotoPosition(int);
 	int loadMovement(int);
+
+	XYandAngle findEndEffector();
 
 };
 

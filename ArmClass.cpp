@@ -232,3 +232,42 @@ int Arm_Class::loadCalibrations() {
 
 
 
+
+XYandAngle Arm_Class::findEndEffector(){
+
+	// Location of base for this xperiment is the
+	// pivot of the base servo.
+
+	// This xperiment is just the 2D plane of the arm, so
+	// we can locate the pivot point of the shoulder by just
+	// adding to our Y variable (Z direction in 3D)
+
+	XYpoint basePoint = {0,0};
+
+	XYpoint shoulderPoint = {basePoint.x , basePoint.y + 37};
+
+	XYandAngle elbowPoint = joints[1].findEndXY(shoulderPoint, 1.5708);
+
+	XYandAngle wristPoint = joints[2].findEndXY(elbowPoint);
+
+	XYandAngle gripperTip = joints[3].findEndXY(wristPoint);
+
+
+	Serial.print("<");
+
+	Serial.print("EB ");
+	elbowPoint.printOut();
+
+	Serial.print(" WR ");
+	wristPoint.printOut();
+
+	Serial.print(" GT ");
+	gripperTip.printOut();
+
+	Serial.print(">");
+
+	return gripperTip;
+}
+
+
+

@@ -139,14 +139,18 @@ void parseCommand(char* aCommand) {
 			}
 				//  R for requests for data
 			case 'R': {
-				for (uint8_t i = 0; i < NUMBER_OF_JOINTS; i++) {
-					Serial.print("<");
-					Serial.print(i);
-					Serial.print(",");
-					Serial.print(joints[i].getPosition());
+				if (p[1] == '1') {
+					for (uint8_t i = 0; i < NUMBER_OF_JOINTS; i++) {
+						Serial.print("<");
+						Serial.print(i);
+						Serial.print(",");
+						Serial.print(joints[i].getPosition());
 //					Serial.print(",");
 //					Serial.print(joints[i].isMoving());
-					Serial.print(">");
+						Serial.print(">");
+					}
+				} else if (p[1] == '2') {
+					arm.findEndEffector();
 				}
 				break;
 			}
