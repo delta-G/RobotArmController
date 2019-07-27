@@ -29,6 +29,26 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include <EepromFuncs.h>
 
 
+struct ArmPositionStruct {
+
+	SpacePoint basePoint;
+	SpacePoint shoulderPoint;
+	SpacePoint elbowPoint;
+	SpacePoint wristPoint;
+	SpacePoint gripperTip;
+
+};
+
+struct JointSpaceStruct {
+
+	float baseAngle;
+	float shoulderAngle;
+	float elbowAngle;
+	float wristAngle;
+
+};
+
+
 class Arm_Class {
 
 private:
@@ -65,7 +85,19 @@ public:
 
 	XYandAngle findEndEffector();
 
+	ArmPositionStruct currentPositions;
+	boolean positionValid;
+	void invalidatePosition();
+	void findPosition();
+
+	ArmPositionStruct jointSpaceToPosition(JointSpaceStruct);
+
+
+	JointSpaceStruct gripperPositionToJointSpace(SpacePoint, float);
+
 };
+
+
 
 
 

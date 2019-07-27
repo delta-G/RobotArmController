@@ -31,14 +31,14 @@ unsigned int heartbeatDelay = 250;
 
 StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
 
-//  Joint (name, pin, starting pos, min us, min angle, max us, max angle)
+//  Joint (name, pin, starting pos, length, min us, min angle, max us, max angle)
 Joint joints[NUMBER_OF_JOINTS] = {
-		Joint("Base", 4, 1500, 544, 3.49066, 2400, -0.17453),
-		Joint("Shoulder", 5, 1215, 544, -0.087266, 2400, 2.91470),
-		Joint("Elbow", 6, 1215, 544, 2.96706, 2400, -0.13963),
-		Joint("Wrist", 7, 1500, 605, -1.22173, 2400, 2.024582),
-		Joint("Rotate", 8, 1500, 564, -0.34907, 2400, 3.316126),
-		Joint("Grip", 9, 1781, 1680, 1.923, 2400, PI),
+		Joint("Base", 4, 1500, 37, 544, -0.34907, 2400, 3.31613),
+		Joint("Shoulder", 5, 1215, 105, 544, -0.087266, 2400, 2.91470),
+		Joint("Elbow", 6, 1215, 98, 544, 2.96706, 2400, -0.13963),
+		Joint("Wrist", 7, 1500, 158, 32, 605, -1.16937, 2400, 2.12930),
+		Joint("Rotate", 8, 1500, 0, 564, -0.34907, 2400, 3.316126),
+		Joint("Grip", 9, 2250, 0, 1680, 1.923, 2400, PI),
 		Joint("Pan", A0, 1350),
 		Joint("Tilt", A1, 1220)
 };
@@ -106,7 +106,7 @@ void heartbeat() {
 void powerUpServos(){
 	arm.detachAll();
 	delay(10);
-	digitalWrite(A3, HIGH);
+	digitalWrite(SERVO_POWER_PIN, HIGH);
 	delay(10);
 	arm.init();   // 2 seconds of blocking delay !!!!
 }
@@ -115,7 +115,7 @@ void powerUpServos(){
 void powerDownServos(){
 	arm.detachAll();
 	delay(10);
-	digitalWrite(A3, LOW);
+	digitalWrite(SERVO_POWER_PIN, LOW);
 	delay(10);
 }
 
@@ -242,6 +242,22 @@ void parseCommand(char* aCommand) {
 
 				break;
 			}
+
+
+			case 'M': {
+
+				int x = atoi((const char*) p + 1);
+				int y = atoi((const char*) p + 5);
+				int z = atoi((const char*) p + 9);
+				int ang = atoi((const char*) p + 13);
+
+				arm.gripperPositionToJointSpace({x,y,z}, ang);
+
+
+				break;
+			}
+
+
 				//  Raw numbers get written to the currently active servo
 			case '0' ... '9': {
 				int position = atoi((const char*) p);

@@ -16,6 +16,14 @@ struct SpacePoint {
 	int16_t y;
 	int16_t z;
 
+	void printOut(){
+			Serial.print(x);
+			Serial.print(" ");
+			Serial.print(y);
+			Serial.print(" ");
+			Serial.print(z);
+		}
+
 };
 
 struct XYpoint {

@@ -18,51 +18,42 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
      */
 
-#ifndef _RobotArmController_H_
-#define _RobotArmController_H_
+
+/*
+ *
+ *
+ * Let's move the 0,0,0 point to the floor under the bot so the bot is
+ * entirely in positive space.
+ *
+ *
+ */
+
+#ifndef NOGOZONES_H_
+#define NOGOZONES_H_
+
 #include "Arduino.h"
-#include <RobotSharedDefines.h>
-#include "Defines.h"
 
 
-
-#include <Servo.h>
-#include <StreamParser.h>
-#include <EepromFuncs.h>
-
-#include "Joint.h"
-#include "ArmClass.h"
-#include "SpacePoint.h"
+#define MAIN_DECK_HEIGHT 115
+#define MAIN_DECK_FRONT 127
+#define MAIN_DECK_BACK -127
+#define MAIN_DECK_LEFT -140
+#define MAIN_DECK_RIGHT 140
 
 
+#define TURRET_HEIGHT 115
+#define TURRET_FRONT 127
+#define TURRET_BACK -127
+#define TURRET_LEFT -140
+#define TURRET_RIGHT 140
 
 
+// return true if the xyz is outside of the no-go zone.
+boolean goCheckMainDeck(int x, int y, int z);
+
+boolean goCheckTurret(int x, int y, int z);
 
 
+boolean goCheck(int x, int y, int z);
 
-//#define SER_BAUD 115200
-
-
-
-//#define START_OP '<'
-//#define END_OP '>'
-//#define SEPERATOR ','
-
-enum JointsE {
-	BASE, SHOULDER, ELBOW, WRIST, ROTATE, GRIP, PAN, TILT, NUMBER_OF_JOINTS
-};
-
-void setup();
-void loop();
-void heartbeat();
-
-void parseCommand(char* aCommand);
-void programEEPROM(char*);
-
-
-void powerUpServos();
-void powerDownServos();
-
-
-
-#endif /* _RobotArmController_H_ */
+#endif /* NOGOZONES_H_ */

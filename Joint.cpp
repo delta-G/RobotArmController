@@ -26,7 +26,10 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	position = aPos;
 	target = aPos;
 	speed = 100;
+
 	length = 100;
+	offset = 0;
+
 	moving = false;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
 	lastStickUpdate = millis();
@@ -41,6 +44,23 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_
 	position = aPos;
 	target = aPos;
 	length = aLength;
+	offset = 0;
+	speed = 100;
+	moving = false;
+	lastStickUpdate = millis();
+	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
+//	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
+
+	max_refresh_rate = 100;
+}
+
+Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_t aOffset, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle) {
+	name = aName;
+	pin = aPin;
+	position = aPos;
+	target = aPos;
+	length = aLength;
+	offset = aOffset;
 	speed = 100;
 	moving = false;
 	lastStickUpdate = millis();
@@ -290,8 +310,8 @@ all the arm pieces.  If we want to fill things out later we can.
 But for now all arm pieces are modeled as a line.
 
 For the purposes of this kinematics we will set our coordinate frame
-such that 0,0,0 is the hub of the base servo.  Positive X will be
-towards the front of the vehicle.  Positive Y will be to the right.
+such that 0,0,0 is the hub of the base servo.  Positive Y will be
+towards the front of the vehicle.  Positive X will be to the right.
 And positive Z will be up.  Angles will be measured so 90 degrees
 (pi/2) is straight up and down.  Angles less than 90 will be towards
 the front of the vehicle if the base is at it's mid-position with the
@@ -340,6 +360,12 @@ XYandAngle Joint::findEndXY(XYandAngle aPivot){
 
 	XYpoint solution = solveTriangle(endAngle, length);
 
+	if(offset != 0){
+		XYpoint offsetSolution = solveTriangle(endAngle + 90, offset);
+		solution.x += offsetSolution.x;
+		solution.y += offsetSolution.y;
+	}
+
 	XYandAngle retval;
 
 	retval.x = solution.x + aPivot.x;
@@ -347,4 +373,29 @@ XYandAngle Joint::findEndXY(XYandAngle aPivot){
 	retval.approachAngle = endAngle;
 
 	return retval;
+}
+
+
+
+
+XYandAngle Joint::findEndXY(XYandAngle aPivot, float aPosition){
+
+	float endAngle = aPivot.approachAngle + calibration.constrainAngle(aPosition) - 1.5708;
+
+		XYpoint solution = solveTriangle(endAngle, length);
+
+		if(offset != 0){
+			XYpoint offsetSolution = solveTriangle(endAngle + 90, offset);
+			solution.x += offsetSolution.x;
+			solution.y += offsetSolution.y;
+		}
+
+		XYandAngle retval;
+
+		retval.x = solution.x + aPivot.x;
+		retval.y = solution.y + aPivot.y;
+		retval.approachAngle = endAngle;
+
+		return retval;
+
 }

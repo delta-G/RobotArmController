@@ -252,6 +252,16 @@ XYandAngle Arm_Class::findEndEffector(){
 
 	XYandAngle gripperTip = joints[3].findEndXY(wristPoint);
 
+	SpacePoint tip3D = {0,0,0};
+
+	tip3D.z = gripperTip.y; //// In the 2D model we had Y for height
+	///  x in the 2D model is the radius in this calc.
+	///   TODO:  Fix the Z vs Y issue
+
+	float baseAngle = joints[0].getAngle();
+	tip3D.x = gripperTip.x * cos(baseAngle);
+	tip3D.y = gripperTip.x * sin(baseAngle);
+
 
 	Serial.print("<");
 
@@ -264,10 +274,281 @@ XYandAngle Arm_Class::findEndEffector(){
 	Serial.print(" GT ");
 	gripperTip.printOut();
 
+	Serial.print(" 3D ");
+	tip3D.printOut();
+
 	Serial.print(">");
 
 	return gripperTip;
 }
 
 
+SpacePoint xyAngleToSpacePoint(XYandAngle xy, float baseAngle ){
 
+	SpacePoint retval;
+
+	retval.z = xy.y;  // y in our xy plane is z in the 3d TODO:  Fix that
+	retval.x = xy.x * cos(baseAngle);
+	retval.y = xy.x * sin(baseAngle);
+
+	return retval;
+
+}
+
+
+void Arm_Class::findPosition(){
+
+	XYpoint basePoint = {0,0};
+
+	XYpoint shoulderPoint = {basePoint.x , basePoint.y + 37};
+
+	XYandAngle elbowPoint = joints[1].findEndXY(shoulderPoint, 1.5708);
+
+	XYandAngle wristPoint = joints[2].findEndXY(elbowPoint);
+
+	XYandAngle gripperTip = joints[3].findEndXY(wristPoint);
+
+	currentPositions.basePoint = { 0, 0, 0};
+
+	currentPositions.shoulderPoint = currentPositions.basePoint;
+	currentPositions.shoulderPoint.z += 37;
+
+	float baseAngle = joints[0].getAngle();
+	currentPositions.elbowPoint = xyAngleToSpacePoint(elbowPoint, baseAngle);
+	currentPositions.wristPoint = xyAngleToSpacePoint(wristPoint, baseAngle);
+	currentPositions.gripperTip = xyAngleToSpacePoint(gripperTip, baseAngle);
+
+	positionValid = true;
+
+}
+
+ArmPositionStruct Arm_Class::jointSpaceToPosition(JointSpaceStruct aPos) {
+
+	ArmPositionStruct retval;
+
+	//  First two never change...
+
+	XYpoint basePoint = {0,0};
+
+	XYandAngle shoulderPoint = {basePoint.x , basePoint.y + 37, 1.5708};
+
+	// These we calculate with the static function
+	XYandAngle elbowPoint = joints[1].findEndXY(shoulderPoint, aPos.shoulderAngle);
+
+	XYandAngle wristPoint = joints[2].findEndXY(elbowPoint, aPos.elbowAngle);
+
+	XYandAngle gripperTip = joints[3].findEndXY(wristPoint, aPos.wristAngle);
+
+	retval.basePoint = { 0, 0, 0};
+
+	retval.shoulderPoint = retval.basePoint;
+	retval.shoulderPoint.z += 37;
+
+	float baseAngle = joints[0].getAngle();
+	retval.elbowPoint = xyAngleToSpacePoint(elbowPoint, baseAngle);
+	retval.wristPoint = xyAngleToSpacePoint(wristPoint, baseAngle);
+	retval.gripperTip = xyAngleToSpacePoint(gripperTip, baseAngle);
+
+	return retval;
+
+}
+
+
+/*
+ *
+ * Now inverse Kinematics
+ * This is a herder nut to crack
+ *
+ * Let's start by saying where we want the tip.
+ *
+ * We can do something similar to how we solved the problem in
+ * the forward case.  Let's devolve it into a 2D problem
+ *
+ * We know the angle that the desired point makes with the centerline
+ * of the bot.  So we know the angle that the base servo has to go to.
+ * It's the same conversion from polar to cartesian that we had on
+ * the forward kinematics.  Then we calculate a radial distance and
+ * turn it into a 2D problem for the rest of the servos.
+ *
+ * So we place the gripper tip in our 2D plane.
+ * Then we can calculate an arc about that point that represents
+ * all the places that the wrist servo could possibly be.
+ * From there we can choose the point on that arc closest to
+ * where the wrist is now.
+ *
+ * Then from there we do something similar with the elbow.
+ * From the wrist position we calculate an arc of places the
+ * elbow could be.  We caculate an arc of places the elbow could be
+ * from the shoulder's point of view.  Where those two intersect is
+ * where the elbow needs to go.  If there are two intersections then
+ * we take the one that is closest to where the elbow is now OR we
+ * take the one that involves the least movement of servos.
+ *
+ *
+ * We need LOTS AND LOTS of safety built in.  If it tries to go to a position
+ * that it can't do then we need safeties.
+ *
+ *
+ *
+ * It may be simpler than I think.  If we know the position of the tip and
+ * the end angle of the claw, then we know exactly the position of the wrist.
+ * From there it is spherical geometry.  The distance from the shoulder servo
+ * gives the elbow angle and then the point on that sphere determines the shoulder
+ * and the base angle.
+ *
+ * The trick is what if the position can't be reached with that given claw angle.
+ * How do we then determine what angle to use?  We would have to do like above and
+ * generate an arc and find intersections.  But the wrist position creates a pretty
+ * good 3D field.  Maybe we need to just go ahead and define it.
+ *
+ * It can't be hard.  Most of it is as simple as defining spheres or sections of spheres.
+ * There's a bubble where your max reach is.  Another bubble around the base of the arm.
+ * A slightly more intricate set of bubbles around the tank base.  It looks like it can all
+ * be modeled with spheres.  Time to bone up on 3D geometry.
+ *
+ */
+
+
+/*
+ *  First is the simple case.  We give the tip position and angle of the gripper.
+ *  This means that we can directly calculate wrist position.
+ *
+ *  From wrist position there are only two solutions to elbow and shoulder
+ *  One is the "elbow-up" position and the other is "elbow-down"
+ *
+ *  Because our robot has the big head on it, I think we only want to consider
+ *  elbow up possibilities.  Maybe there are cases and we can explore that later.
+ */
+
+//  Find end of hypotenuse from angle at 0,0
+//XYpoint solveTriangle (float aAngle, uint16_t aLength){
+//	XYpoint retval = {0,0};
+//	retval.x = cos(aAngle) * aLength;
+//	retval.y = sin(aAngle) * aLength;
+//	return retval;
+//}
+
+JointSpaceStruct Arm_Class::gripperPositionToJointSpace(SpacePoint xyz, float wristAngle) {
+
+	//  Convert our 3D point to the 2D plane by taking out the base angle
+
+	XYpoint tip;
+	// x is distance in x-y plane of 3D
+	tip.x = sqrt((xyz.x * xyz.x) + (xyz.y * xyz.y));
+	// y in the 2D is z in the 3D
+	tip.y = xyz.z;
+
+	XYpoint wrist = solveTriangle((wristAngle - PI), joints[3].getLength());
+
+	//  The distance from the shoulder in 2D space determines the elbow angle.
+	//  Nothing can be done about that.
+	//  We're only calculating Elbow UP here
+
+	// This is NOT a right triangle.
+	//  We have 3 known sides and want one angle.
+
+	// Law of cosines  a and b are adjacent sides and c is opposite
+
+	// cos(C) = (a^2 + b^2 - c^2) / 2ab
+
+	// shoulder is fixed
+	XYpoint shoulder = {0 , 37};
+
+	// c is our distance from shoulder
+	float c = sqrt(((wrist.x - shoulder.x)*(wrist.x - shoulder.x)) + ((wrist.y - shoulder.y)*(wrist.y - shoulder.y)));
+
+	float a = joints[1].getLength();
+	float b = joints[2].getLength();
+
+	float cosC = ((a*a) + (b*b) - (c*c)) / (2 * a * b);
+
+	float elbowAngle = acos(cosC);
+
+	//  If the elbow makes an angle of elbowAngle, then the elbow servo makes an angle of
+	//  90 - (180 - elbowAngle)  // to radians of course.
+	//  90 - 180 + elbowAngle
+	// -90 + elbowAngle
+	//  elbowAngle - 90
+
+	float elbowServoAngle = elbowAngle - (PI/2);
+
+	float cosB = ((a*a) + (c*c) - (b*b)) / (2 * a * c);
+
+	float angleB = acos(cosB);
+
+	int d = wrist.y - shoulder.y;
+
+	float angleD = atan((float)d/c);
+
+	float shoulderServoAngle = angleB + angleD;
+
+	float wristServoAngle = wristAngle - shoulderServoAngle - elbowServoAngle + PI;
+
+	// That solves distance from the base pivot and the z axis in 3D as an X-Y problem
+	//  Now we need to get the angle for the base.
+
+	float baseAngle = atan((float) xyz.y / xyz.x);
+
+	Serial.print("<JSPC-");
+	Serial.print("tipxy");
+	Serial.print(tip.x);
+	Serial.print(",");
+	Serial.print(tip.y);
+	Serial.print(" - ");
+
+	Serial.print("<JSPC-");
+	Serial.print("wristxy");
+	Serial.print(wrist.x);
+	Serial.print(",");
+	Serial.print(wrist.y);
+	Serial.print(" - ");
+
+	Serial.print("c=");
+	Serial.print(c);
+	Serial.print(",");
+
+	Serial.print("a=");
+	Serial.print(a);
+	Serial.print(",");
+
+	Serial.print("b=");
+	Serial.print(b);
+	Serial.print(",");
+
+	Serial.print("cosC=");
+	Serial.print(cosC);
+	Serial.print(",");
+
+	Serial.print("ESA=");
+	Serial.print(elbowServoAngle);
+	Serial.print(",");
+
+	Serial.print("cosB=");
+	Serial.print(cosB);
+	Serial.print(",");
+
+	Serial.print("angB=");
+	Serial.print(angleB);
+	Serial.print(",");
+
+	Serial.print("angD=");
+	Serial.print(angleD);
+	Serial.print(",");
+
+	Serial.print("shAng=");
+	Serial.print(shoulderServoAngle);
+	Serial.print(",");
+
+	Serial.print("wrAng=");
+	Serial.print(wristServoAngle);
+	Serial.print(",");
+
+	Serial.print("bAng=");
+	Serial.print(baseAngle);
+	Serial.print(">");
+
+	JointSpaceStruct retval = {baseAngle, shoulderServoAngle, elbowServoAngle, wristServoAngle};
+
+	return retval;
+
+}

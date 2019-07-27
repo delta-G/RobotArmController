@@ -29,6 +29,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "ServoCalibration.h"
 #include "SpacePoint.h"
 
+XYpoint solveTriangle (float aAngle, uint16_t aLength);
+
 class Joint : public Servo {
 
 private:
@@ -41,6 +43,7 @@ private:
 	boolean moving;
 
 	uint16_t length;  // should be integer mm.
+	uint16_t offset;  // mm in vertical offset
 
 	uint32_t lastStickUpdate;
 
@@ -55,6 +58,7 @@ public:
 
 	Joint(char* name, uint8_t aPin, uint16_t aPos);
 	Joint(char* name, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
+	Joint(char* name, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_t aOffset, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
 
 	void init();
 
@@ -93,6 +97,7 @@ public:
 
 	XYandAngle findEndXY(XYpoint aPivot, float aAngle);
 	XYandAngle findEndXY(XYandAngle aPivot);
+	XYandAngle findEndXY(XYandAngle aPivot, float aPosition);
 
 };
 
