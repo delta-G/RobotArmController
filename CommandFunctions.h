@@ -18,57 +18,29 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
      */
 
-#ifndef ARMCLASS_H_
-#define ARMCLASS_H_
+#ifndef COMMANDFUNCTIONS_H_
+#define COMMANDFUNCTIONS_H_
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include <CommandParser.h>
+
 #include "Defines.h"
-#include "Joint.h"
-#include <EepromFuncs.h>
+#include "ArmClass.h"
 
+void startCommands(char* p);
+void setJointIndex(char* p);
+void requestFromArm(char *p);
+void bootResponse(char* p);
+void setTarget(char* p);
+void setAngle(char* p);
+void setSpeed(char* p);
+void useStick(char *p);
+void followStick(char *p);
+void controlCodes(char* p);
+void moveToPosition(char* p);
 
-class Arm_Class {
-
-private:
-
-	Joint* joints;
-	int numJoints;
-
-
-
-public:
-
-	Arm_Class();
-	Arm_Class(Joint*, int);
-
-	int getNumJoints();
-	Joint getJoint(unsigned int);
-
-	void addJoint(int, Joint);
-	void init();
-	void detachAll();
-	void attachAll();
-	void run();
-	void stop();
-	boolean isMoving();
-
-	int savePosition(int);
-//	int readPosition(int);
-
-	int saveAll(int);
-	int loadAll(int);
-	int saveStates(int);
-	int loadStates(int);
-	int saveCalibrations();
-	int loadCalibrations();
-
-	int gotoPosition(int);
-	int loadMovement(int);
-
-};
+void programEEPROM(char* aCommand);
 
 
 
-
-
-#endif /* ARMCLASS_H_ */
+#endif /* COMMANDFUNCTIONS_H_ */

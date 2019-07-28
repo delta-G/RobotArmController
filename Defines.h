@@ -22,6 +22,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+#include <RobotSharedDefines.h>
 
 #define SERVO_POWER_PIN A3
 #define HEARTLED 13

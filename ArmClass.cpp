@@ -79,6 +79,16 @@ Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 	numJoints = aNum;
 }
 
+int Arm_Class::getNumJoints(){
+	return numJoints;
+}
+
+Joint Arm_Class::getJoint(unsigned int aIndex){
+	if(aIndex >= numJoints){
+		return joints[numJoints - 1];
+	}
+	return joints[aIndex];
+}
 
 void Arm_Class::addJoint(int i, Joint j){
 	if((i >=0)  && (i < numJoints)){

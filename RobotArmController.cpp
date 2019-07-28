@@ -270,9 +270,9 @@ void parseCommand(char* aCommand) {
 
 void programEEPROM(char* aCommand) {
 
-	char inBuf[MAX_COMMAND_LENGTH];
-	strncpy(inBuf, aCommand, MAX_COMMAND_LENGTH - 1);
-	inBuf[MAX_COMMAND_LENGTH - 1] = 0;
+	char inBuf[COM_PARSER_MAX_COMMAND_LENGTH];
+	strncpy(inBuf, aCommand, COM_PARSER_MAX_COMMAND_LENGTH - 1);
+	inBuf[COM_PARSER_MAX_COMMAND_LENGTH - 1] = 0;
 	int address = -1;
 
 	if (inBuf[0] == '<') {
