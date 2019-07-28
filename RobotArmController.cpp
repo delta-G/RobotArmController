@@ -82,7 +82,10 @@ void setup() {
 
 	if(!eepromGood()){
 		heartbeatDelay = 100;
+		Serial.print(ARM_BAD_EEPROM);
 	}
+
+	Serial.print(ARM_INIT_COMPLETE);
 
 }
 
@@ -151,7 +154,7 @@ void parseCommand(char* aCommand) {
 				break;
 			}
 			case 'B': {
-				Serial.print("<Booted / Connected>");
+				Serial.print(ARM_CONNECT_RESPONSE);
 				break;
 			}
 			case 'C': {
