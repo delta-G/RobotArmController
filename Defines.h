@@ -55,5 +55,7 @@ boolean eepromGood();
 #define MAX_COMMAND_LENGTH 64
 
 
+#define ARM_MODE_STICK_DEADZONE 1000
+
 
 #endif /* DEFINES_H_ */
