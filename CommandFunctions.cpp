@@ -27,6 +27,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 extern Arm_Class arm;
 extern XboxHandler xbox;
 
+extern ModeEnum currentDriveMode;
+
 int jointIndex = -1;
 
 //  P is reserved for programming the EEPROM
@@ -84,11 +86,17 @@ void controlCodes(char* p){
 
 	switch(p[1]){
 
-//	case 'M':    // set mode (D, A, M = Drive, Arm, Mine)
-//		if (p[2] == 'A'){
-//			// arm mode
-//		}
-//		break;
+
+	case 'M':    // set mode (D, A, M = Drive, Arm, Mine)
+		if (p[2] == 'D') {
+			currentDriveMode = DRIVE;
+		} else if (p[2] == 'A') {
+			currentDriveMode = ARM;
+		} else if (p[2] == 'M') {
+			currentDriveMode = MINE;
+		}
+		break;
+
 
 	case 'S':
 		arm.saveCalibrations();

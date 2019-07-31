@@ -24,6 +24,8 @@ XboxHandler* xbox_ptr;
 
 Arm_Class* arm_ptr;
 
+extern ModeEnum currentDriveMode;
+
 boolean invertWrist = false;
 boolean invertElbow = false;
 boolean invertShoulder = false;
@@ -36,10 +38,10 @@ void mainControllerLoop() {
 
 	if (xbox_ptr->newDataAvailable()) {
 
-		rawMode();
-
+		if(currentDriveMode == ARM){
+			rawMode();
+		}
 	}
-
 }
 
 void rawMode() {

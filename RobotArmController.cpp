@@ -29,6 +29,11 @@ boolean programmingEEPROM = false;
 
 unsigned int heartbeatDelay = 250;
 
+
+ModeEnum currentDriveMode;
+
+XboxHandler xbox;
+
 StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
 extern CommandParser cp;
 
@@ -92,9 +97,10 @@ void setup() {
 
 void loop() {
 
-	arm.run();
-	parser.run();
+	arm.run();             // things the arm does by itself
+	parser.run();          // handle any serial data
 	heartbeat();
+	mainControllerLoop();  // xbox controller stuff
 
 }
 
