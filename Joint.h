@@ -27,6 +27,9 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "Defines.h"
 
 #include "ServoCalibration.h"
+#include "SpacePoint.h"
+
+XYpoint solveTriangle (float aAngle, uint16_t aLength);
 
 class Joint : public Servo {
 
@@ -38,6 +41,9 @@ private:
 	uint16_t speed;   /// us of change in pulse width per second
 
 	boolean moving;
+
+	uint16_t length;  // should be integer mm.
+	uint16_t offset;  // mm in vertical offset
 
 	uint32_t lastStickUpdate;
 
@@ -51,7 +57,8 @@ public:
 
 
 	Joint(char* name, uint8_t aPin, uint16_t aPos);
-	Joint(char* name, uint8_t aPin, uint16_t aPos, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
+	Joint(char* name, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
+	Joint(char* name, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_t aOffset, uint16_t aMinMicros, float aMinAngle, uint16_t aMaxMicros, float aMaxAngle);
 
 	void init();
 
@@ -61,6 +68,9 @@ public:
 	uint8_t getPin();
 	uint16_t getPosition();
 	char* getName();
+
+	uint16_t getLength();
+	void setLength(uint16_t);
 
 	boolean isMoving();
 
@@ -85,6 +95,9 @@ public:
 	void followTheStick(int);
 	void useStick(int);
 
+	XYandAngle findEndXY(XYpoint aPivot, float aAngle);
+	XYandAngle findEndXY(XYandAngle aPivot);
+	XYandAngle findEndXY(XYandAngle aPivot, float aPosition);
 
 };
 
