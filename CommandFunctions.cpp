@@ -97,7 +97,7 @@ void controlCodes(char* p){
 		//power up
 		arm.detachAll();
 		delay(10);
-		digitalWrite(SERVO_POWER_PIN, HIGH);
+		digitalWrite((byte)SERVO_POWER_PIN, HIGH);
 		delay(10);
 		arm.init();   // 2 seconds of blocking delay !!!!
 		break;
@@ -105,7 +105,7 @@ void controlCodes(char* p){
 		// power down
 		arm.detachAll();
 		delay(10);
-		digitalWrite(SERVO_POWER_PIN, LOW);
+		digitalWrite((byte)SERVO_POWER_PIN, LOW);
 		delay(10);
 		break;
 	}
@@ -151,7 +151,7 @@ void followStick(char *p) {
 
 void moveToPosition(char *p) {
 	int position = atoi((const char*) p);
-	if (jointIndex >= 0 && jointIndex < arm.numJoints) {
+	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
 		arm.getJoint(jointIndex).moveToImmediate(position);
 		// jointIndex = -1;   // comment this line to allow run-on commands
 	}
