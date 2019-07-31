@@ -29,6 +29,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include <XboxHandler.h>
 
 void rawMode();
+void mainControllerLoop();
 
 
 

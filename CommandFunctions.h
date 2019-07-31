@@ -23,6 +23,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include <Arduino.h>
 #include <CommandParser.h>
+#include <XboxHandler.h>
 
 #include "Defines.h"
 #include "ArmClass.h"
@@ -39,7 +40,7 @@ void followStick(char *p);
 void controlCodes(char* p);
 void moveToPosition(char* p);
 
-void programEEPROM(char* aCommand);
+void xboxCommand(char* p);
 
 
 

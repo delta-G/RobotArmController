@@ -28,8 +28,18 @@ boolean invertWrist = false;
 boolean invertElbow = false;
 boolean invertShoulder = false;
 
-void stickHelper(JointsE aJoint, int aVal){
-	arm_ptr->getJoint(aJoint).useStick(aVal);
+
+void mainControllerLoop() {
+
+	static unsigned long previousRunTime = millis();
+	unsigned long currentRunTime = millis();
+
+	if (xbox_ptr->newDataAvailable()) {
+
+		rawMode();
+
+	}
+
 }
 
 void rawMode() {

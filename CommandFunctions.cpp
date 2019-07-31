@@ -25,12 +25,14 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
  */
 
 extern Arm_Class arm;
+extern XboxHandler xbox;
 
 int jointIndex = -1;
 
 //  P is reserved for programming the EEPROM
 //  the callback that is calling us is checking for it
 Command commands[] = {
+		{ 'X', xboxCommand },
 		{ 'A', startCommands },
 		{ 'S', setJointIndex },
 		{ 'R', requestFromArm },
@@ -46,6 +48,10 @@ Command commands[] = {
 
 
 CommandParser cp(&commands[0], NUM_ELEMENTS(commands), false);
+
+void xboxCommand(char* p){
+	xbox.handleIncomingASCII(p);
+}
 
 void startCommands(char* p){
 	// RMB gets an A as a signal to send to arm
@@ -77,6 +83,12 @@ void bootResponse(char* p){
 void controlCodes(char* p){
 
 	switch(p[1]){
+
+//	case 'M':    // set mode (D, A, M = Drive, Arm, Mine)
+//		if (p[2] == 'A'){
+//			// arm mode
+//		}
+//		break;
 
 	case 'S':
 		arm.saveCalibrations();
