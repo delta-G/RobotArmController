@@ -51,6 +51,10 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 boolean eepromGood();
 
 
+enum JointsE {
+	BASE, SHOULDER, ELBOW, WRIST, ROTATE, GRIP, PAN, TILT, NUMBER_OF_JOINTS
+};
+
 
 #define MAX_COMMAND_LENGTH 64
 

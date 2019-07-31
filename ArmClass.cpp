@@ -72,12 +72,14 @@ Arm_Class::Arm_Class(){
 
 	joints = 0;
 	numJoints = 8;
+	positionValid = false;
 
 }
 
 Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 	joints = aJoints;
 	numJoints = aNum;
+	positionValid = false;
 }
 
 int Arm_Class::getNumJoints(){

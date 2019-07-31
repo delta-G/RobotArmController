@@ -49,9 +49,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 //#define END_OP '>'
 //#define SEPERATOR ','
 
-enum JointsE {
-	BASE, SHOULDER, ELBOW, WRIST, ROTATE, GRIP, PAN, TILT, NUMBER_OF_JOINTS
-};
+
 
 void setup();
 void loop();

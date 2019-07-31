@@ -22,11 +22,57 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 XboxHandler* xbox_ptr;
 
+Arm_Class* arm_ptr;
+
+boolean invertWrist = false;
+boolean invertElbow = false;
+boolean invertShoulder = false;
+
+void stickHelper(JointsE aJoint, int aVal){
+	arm_ptr->getJoint(aJoint).useStick(aVal);
+}
+
 void rawMode() {
 
+	int16_t rotateVal = xbox_ptr->getHatValue(RightHatX);
+	int16_t wristVal = xbox_ptr->getHatValue(RightHatY);
+	int16_t shoulderVal = xbox_ptr->getHatValue(LeftHatX);
+	int16_t elbowVal = xbox_ptr->getHatValue(LeftHatY);
+
+	if(invertWrist){
+		wristVal = 0-wristVal;
+	}
+	if(invertElbow){
+		elbowVal = 0 - elbowVal;
+	}
+	if(invertShoulder){
+		shoulderVal = 0 - shoulderVal;
+	}
+
+	int16_t gripVal = (xbox_ptr->getTriggerValue(R2) - xbox_ptr->getTriggerValue(L2)) * 256;
+
 	//  Don't mess with the D-pad, Robot is using it to drive
+	arm_ptr->getJoint(ROTATE).useStick(rotateVal);
+	arm_ptr->getJoint(WRIST).useStick(wristVal);
+	arm_ptr->getJoint(SHOULDER).useStick(shoulderVal);
+	arm_ptr->getJoint(ELBOW).useStick(elbowVal);
 
+	arm_ptr->getJoint(GRIP).useStick(gripVal);
 
+	if(xbox_ptr->isPressed(L1)){
+		arm_ptr->getJoint(BASE).useStick(3276);
+	}
+	else if (xbox_ptr->isPressed(R1)){
+		arm_ptr->getJoint(BASE).useStick(-3276);
+	}
+
+	if (xbox_ptr->isClicked(R3)){
+		invertElbow = !invertElbow;
+		invertWrist = !invertWrist;
+	}
+	if (xbox_ptr->isClicked(L3)){
+		invertShoulder = !invertShoulder;
+	}
 
 }
 

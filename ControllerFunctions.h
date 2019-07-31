@@ -24,7 +24,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "Arduino.h"
 #include "Defines.h"
 
-
+#include "ArmClass.h"
 
 #include <XboxHandler.h>
 
