@@ -30,6 +30,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include <StreamParser.h>
 #include <EepromFuncs.h>
 
+#include "CommandFunctions.h"
 #include "Joint.h"
 #include "ArmClass.h"
 

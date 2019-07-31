@@ -44,6 +44,9 @@ Command commands[] = {
 		{ '#', moveToPosition }
 };
 
+
+CommandParser cp(&commands[0], NUM_ELEMENTS(commands), false);
+
 void startCommands(char* p){
 	// RMB gets an A as a signal to send to arm
 	// This is that A

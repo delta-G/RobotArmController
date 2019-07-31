@@ -30,6 +30,7 @@ boolean programmingEEPROM = false;
 unsigned int heartbeatDelay = 250;
 
 StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
+extern CommandParser cp;
 
 //  Joint (name, pin, starting pos, min us, min angle, max us, max angle)
 Joint joints[NUMBER_OF_JOINTS] = {
@@ -122,150 +123,36 @@ void powerDownServos(){
 	delay(10);
 }
 
-
-void parseCommand(char* aCommand) {
+void parseCommand(char *aCommand) {
 	char inBuf[MAX_COMMAND_LENGTH];
 	strncpy(inBuf, aCommand, MAX_COMMAND_LENGTH - 1);
 	inBuf[MAX_COMMAND_LENGTH - 1] = 0;
-	int jointIndex = -1;
 
 	if (inBuf[0] == '<') {
-		char* delimiters = "<,>";
-		for (char* p = strtok(inBuf, delimiters); p != NULL;
-				p = strtok(NULL, delimiters)) {
 
-			switch (p[0]) {
-			//  S sets the active servo
-			case 'S': {
-				jointIndex = atoi((const char*) (p + 1));
-				break;
+		//  To program EEPROM by Serial, the P has to be the first thing in the command string
+		//  This won't ever come through the robot since it can only forward messages starting
+		//  with A or S.  This is only for plugging something into the arm to program it.
+		//  If we want to do this over the air we will have to write more later.
+		if (inBuf[1] == 'P') {
+			// program EEPROM by Serial.
+			parser.setCallback(programEEPROM);
+			programmingEEPROM = true;
+			while (programmingEEPROM) {
+				parser.run();
 			}
-				//  R for requests for data
-			case 'R': {
-				for (uint8_t i = 0; i < NUMBER_OF_JOINTS; i++) {
-					Serial.print("<");
-					Serial.print(i);
-					Serial.print(",");
-					Serial.print(joints[i].getPosition());
-//					Serial.print(",");
-//					Serial.print(joints[i].isMoving());
-					Serial.print(">");
-				}
-				break;
-			}
-			case 'B': {
-				Serial.print(ARM_CONNECT_RESPONSE);
-				break;
-			}
-			case 'C': {
-				Serial.print("<SavCal>");
-				arm.saveCalibrations();
-				break;
-			}
-			case 'c': {
-				Serial.print("<LodCal>");
-				arm.loadCalibrations();
-				break;
-			}
-			case 'T': {
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int targ = atoi((const char*) (p + 1));
-					joints[jointIndex].setTarget(targ);
-				}
-				break;
-			}
-			case 'L': {
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int targ = atoi((const char*) (p+1));
-					float flargRad = (float)targ * PI / 180;
-					joints[jointIndex].setTargetAngle(flargRad);
-				}
-				break;
-			}
-			case 's': {
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int spd = atoi((const char*) (p + 1));
-					joints[jointIndex].setSpeed(spd);
-				}
-				break;
-			}
-			case 'J': {
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int stickPos = atoi((const char*) (p + 1));
-					joints[jointIndex].useStick(stickPos);
-				}
-				break;
-			}
-			case 'F': {
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					int stickPos = atoi((const char*) (p + 1));
-					joints[jointIndex].followTheStick(stickPos);
-				}
-				break;
-			}
-			case 'A': {
-				arm.attachAll();
-				break;
-			}
-			case 'D': {
-				arm.detachAll();
-				break;
-			}
-			case 'X': {
-				arm.stop();
-				break;
-			}
-			case 'x': {
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					joints[jointIndex].stop();
-				}
-				break;
-			}
-			case 'E': {
-				powerUpServos();
-				break;
-			}
-			case 'e': {
-				powerDownServos();
-				break;
-			}
-			case 'P': {
-
-				// program EEPROM by Serial.
-				parser.setCallback(programEEPROM);
-				programmingEEPROM= true;
-				while(programmingEEPROM){
-					parser.run();
-				}
-				parser.setCallback(parseCommand);
-
-				break;
-			}
-				//  Raw numbers get written to the currently active servo
-			case '0' ... '9': {
-				int position = atoi((const char*) p);
-				if (jointIndex >= 0 && jointIndex < NUMBER_OF_JOINTS) {
-					joints[jointIndex].moveToImmediate(position);
-					// jointIndex = -1;   // comment this line to allow run-on commands
-				}
-				break;
-			}
-
-			default : {
-				Serial.print("<BADC,");
-				Serial.print(*p);
-				Serial.print(">");
-			}
-
-			} //  End of Switch
+			parser.setCallback(parseCommand);
 		}
 
+		char *delimiters = "<,>";
+		for (char *p = strtok(inBuf, delimiters); p != NULL;
+				p = strtok(NULL, delimiters)) {
+			cp.parseCommandString(p);
+		}
 		// clear the command
 		inBuf[0] = 0;
 	}
-
 }
-
 
 
 void programEEPROM(char* aCommand) {

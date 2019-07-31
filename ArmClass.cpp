@@ -20,18 +20,22 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "ArmClass.h"
 
-#define NUMBER_OF_JOINTS 8
+//#define NUMBER_OF_JOINTS 8
 
 
 enum State_Enum {READY, MOVING} state;
 
 void Arm_Class::run() {
 
+	for (int i = 0; i < numJoints; i++) {
+		joints[i].run();
+	}
+
 	State_Enum newState = state;
 
 	switch (state) {
 	case READY:
-		for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+		for (int i = 0; i < numJoints; i++) {
 			if (joints[i].isMoving()) {
 				newState = MOVING;
 			}
@@ -39,7 +43,7 @@ void Arm_Class::run() {
 		break;
 	case MOVING:
 		boolean done = true;
-		for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+		for (int i = 0; i < numJoints; i++) {
 			if (joints[i].isMoving()) {
 				done = false;
 			}
@@ -48,7 +52,6 @@ void Arm_Class::run() {
 			newState = READY;
 		}
 		break;
-
 	}  // end switch
 
 	if(newState != state){
@@ -59,9 +62,7 @@ void Arm_Class::run() {
 
 	state = newState;
 
-	for (int i = 0; i < numJoints; i++) {
-		joints[i].run();
-	}
+
 }
 
 
@@ -70,7 +71,7 @@ void Arm_Class::run() {
 Arm_Class::Arm_Class(){
 
 	joints = 0;
-	numJoints = NUMBER_OF_JOINTS;
+	numJoints = 8;
 
 }
 
@@ -222,7 +223,7 @@ int Arm_Class::saveCalibrations(){
 	}
 	byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
 	flags &= ~FLAG_CALIBRATIONS_SAVED;  // flags are set as 0 since cleared EEPROM is 0xFF
-	EEPROM.write(1, flags);
+	EEPROM.write(EEPROM_FLAG_BYTE, flags);
 	return add;
 }
 
@@ -237,6 +238,7 @@ int Arm_Class::loadCalibrations() {
 		}
 	}
 
+	//  Cool side effect, this returns 0 if the flag isn't set.
 	return add;
 }
 
