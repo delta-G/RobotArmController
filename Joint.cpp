@@ -33,7 +33,6 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	moving = false;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
 	lastStickUpdate = millis();
-//	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
 	max_refresh_rate = 100;
 }
@@ -49,7 +48,6 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_
 	moving = false;
 	lastStickUpdate = millis();
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
-//	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
 	max_refresh_rate = 100;
 }
@@ -65,7 +63,6 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_
 	moving = false;
 	lastStickUpdate = millis();
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
-//	write(aPos);   Shouldn't write anything before we have hardware ready  this is probably why it jerks on startup
 
 	max_refresh_rate = 100;
 }
@@ -84,9 +81,9 @@ void Joint::moveToImmediate(uint16_t aPos) {
 	write(aPos);
 	position = aPos;
 	target = position;
-	Serial.print("<MTI,");
-	Serial.print(aPos);
-	Serial.print(">");
+//	Serial.print("<MTI,");
+//	Serial.print(aPos);
+//	Serial.print(">");
 }
 
 void Joint::moveToImmediateAngle(float aAng) {
@@ -159,7 +156,6 @@ boolean Joint::run() {
 	static unsigned long prev = millis();
 	unsigned long cur = millis();
 	unsigned long deltaTime = cur - prev;
-//	prev = cur;     //////////////////////////   This can't go here, it will never run...
 
 	if (position != target) {
 
@@ -172,8 +168,6 @@ boolean Joint::run() {
 		//  Speed in us pulse time per ms of real time
 		//  What would be the max?
 		unsigned long deltaPulse = deltaTime * speed / 1000;
-//		uint16_t deltaTarget = position - target;
-//		if(abs(deltaTarget) < deltaPulse) deltaPulse = abs(deltaTarget);
 
 		if (deltaPulse > 0) {
 			if (target < position) {
@@ -287,6 +281,9 @@ void Joint::useStick(int aReading){
 	float speedRatio = (float)aReading / 32767.0;
 	int16_t step = speed * speedRatio * timeScale;
 
+	//  Instead of moveToImmediate, we could try another version with
+	//  setting the speed to the speed ratio times the set speed
+	//  and set the target to the mTI position.
 	if((step >= 1)||(step <= -1)){
 		moveToImmediate(position + step);
 		lastStickUpdate = cm;

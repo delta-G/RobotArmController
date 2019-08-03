@@ -27,7 +27,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 extern Arm_Class arm;
 extern XboxHandler xbox;
 
-extern ModeEnum currentDriveMode;
+extern DriveModeEnum currentDriveMode;
 
 int jointIndex = -1;
 

@@ -24,11 +24,17 @@ XboxHandler* xbox_ptr;
 
 Arm_Class* arm_ptr;
 
-extern ModeEnum currentDriveMode;
+extern DriveModeEnum currentDriveMode;
 
 boolean invertWrist = false;
 boolean invertElbow = false;
 boolean invertShoulder = false;
+
+
+void initControllerFunctions(Arm_Class* aArm, XboxHandler* aXbox){
+	arm_ptr = aArm;
+	xbox_ptr = aXbox;
+}
 
 
 void mainControllerLoop() {

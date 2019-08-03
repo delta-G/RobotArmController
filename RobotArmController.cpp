@@ -30,7 +30,7 @@ boolean programmingEEPROM = false;
 unsigned int heartbeatDelay = 250;
 
 
-ModeEnum currentDriveMode;
+DriveModeEnum currentDriveMode;
 
 XboxHandler xbox;
 
@@ -90,6 +90,8 @@ void setup() {
 		heartbeatDelay = 100;
 		Serial.print(ARM_BAD_EEPROM);
 	}
+
+	initControllerFunctions(&arm, &xbox);
 
 	Serial.print(ARM_INIT_COMPLETE);
 
