@@ -77,13 +77,15 @@ boolean Joint::isMoving(){
 }
 
 void Joint::moveToImmediate(uint16_t aPos) {
+//	Serial.print("<MTI-");
+//		Serial.print(getName());
+//		Serial.print(" , ");
+//		Serial.print(aPos);
+//		Serial.print(">");
 	aPos = calibration.constrainMicros(aPos);
 	write(aPos);
 	position = aPos;
 	target = position;
-//	Serial.print("<MTI,");
-//	Serial.print(aPos);
-//	Serial.print(">");
 }
 
 void Joint::moveToImmediateAngle(float aAng) {
@@ -264,9 +266,6 @@ void Joint::useStick(int aReading){
 	 */
 
 
-
-
-
 	unsigned long cm = millis();
 
 	//The delta time should be last time since a
@@ -277,13 +276,12 @@ void Joint::useStick(int aReading){
 		return;
 	}
 
-	float timeScale = (cm - lastStickUpdate) / 1000.0;  // speed is in microsecond steps per second
+	float timeScale = (cm - lastStickUpdate) / 1000.0;  // speed is in microsecond steps per second so this needs to be in seconds
 	float speedRatio = (float)aReading / 32767.0;
 	int16_t step = speed * speedRatio * timeScale;
 
 	//  Instead of moveToImmediate, we could try another version with
-	//  setting the speed to the speed ratio times the set speed
-	//  and set the target to the mTI position.
+	//  setting the target
 	if((step >= 1)||(step <= -1)){
 		moveToImmediate(position + step);
 		lastStickUpdate = cm;

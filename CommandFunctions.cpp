@@ -52,7 +52,7 @@ Command commands[] = {
 CommandParser cp(&commands[0], NUM_ELEMENTS(commands), false);
 
 void xboxCommand(char* p){
-	xbox.handleIncomingASCII(p);
+	xbox.handleIncomingASCII(p+1);
 }
 
 void startCommands(char* p){
@@ -71,7 +71,7 @@ void requestFromArm(char *p) {
 		Serial.print("<");
 		Serial.print(i);
 		Serial.print(",");
-		Serial.print(arm.getJoint(i).getPosition());
+		Serial.print(arm.getJoint(i)->getPosition());
 //					Serial.print(",");
 //					Serial.print(joints[i].isMoving());
 		Serial.print(">");
@@ -90,10 +90,13 @@ void controlCodes(char* p){
 	case 'M':    // set mode (D, A, M = Drive, Arm, Mine)
 		if (p[2] == 'D') {
 			currentDriveMode = DRIVE;
+			Serial.print("<ARM_MODE_ACTIVE>");
 		} else if (p[2] == 'A') {
 			currentDriveMode = ARM;
+			Serial.print("<ARM_MODE_ACTIVE>");
 		} else if (p[2] == 'M') {
 			currentDriveMode = MINE;
+			Serial.print("<ARM_MODE_ACTIVE>");
 		}
 		break;
 
@@ -136,7 +139,7 @@ void controlCodes(char* p){
 void setTarget(char *p) {
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
 		int targ = atoi((const char*) (p + 1));
-		arm.getJoint(jointIndex).setTarget(targ);
+		arm.getJoint(jointIndex)->setTarget(targ);
 	}
 }
 
@@ -144,35 +147,35 @@ void setAngle(char *p) {
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
 		int targ = atoi((const char*) (p + 1));
 		float flargRad = (float)targ * PI / 180;
-		arm.getJoint(jointIndex).setTargetAngle(flargRad);
+		arm.getJoint(jointIndex)->setTargetAngle(flargRad);
 	}
 }
 
 void setSpeed(char *p) {
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
 		int spd = atoi((const char*) (p + 1));
-		arm.getJoint(jointIndex).setSpeed(spd);
+		arm.getJoint(jointIndex)->setSpeed(spd);
 	}
 }
 
 void useStick(char *p) {
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
 		int stickPos = atoi((const char*) (p + 1));
-		arm.getJoint(jointIndex).useStick(stickPos);
+		arm.getJoint(jointIndex)->useStick(stickPos);
 	}
 }
 
 void followStick(char *p) {
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
 		int stickPos = atoi((const char*) (p + 1));
-		arm.getJoint(jointIndex).followTheStick(stickPos);
+		arm.getJoint(jointIndex)->followTheStick(stickPos);
 	}
 }
 
 void moveToPosition(char *p) {
 	int position = atoi((const char*) p);
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
-		arm.getJoint(jointIndex).moveToImmediate(position);
+		arm.getJoint(jointIndex)->moveToImmediate(position);
 		// jointIndex = -1;   // comment this line to allow run-on commands
 	}
 }

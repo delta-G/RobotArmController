@@ -177,6 +177,14 @@ void programEEPROM(char* aCommand) {
 
 			switch (p[0]) {
 
+			case 'G': {
+				while(address < 1024){
+					Serial.print(EEPROM.read(address), HEX);
+					address++;
+				}
+				break;
+			}
+
 			case 'L': {
 				address = atoi(p + 1);
 				break;
@@ -202,7 +210,7 @@ void programEEPROM(char* aCommand) {
 			case 'a' ... 'f':
 			case '0' ... '9':
 			 {
-				if (address >= 0) {
+				if (address >= 0 && address < 1024) {
 					// as long as we have two more hex digits
 					while ((isxdigit(*p)) && (isxdigit(*(p+1)))) {
 						char c[3];

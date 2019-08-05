@@ -64,7 +64,7 @@ public:
 	Arm_Class(Joint*, int);
 
 	int getNumJoints();
-	Joint getJoint(unsigned int);
+	Joint* getJoint(unsigned int);
 
 	void addJoint(int, Joint);
 	void init();
