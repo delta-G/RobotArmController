@@ -33,6 +33,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	moving = false;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
 	lastStickUpdate = millis();
+	lastRunTime = millis();
 
 	max_refresh_rate = 100;
 }
@@ -47,6 +48,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_
 	speed = 100;
 	moving = false;
 	lastStickUpdate = millis();
+	lastRunTime = millis();
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
 
 	max_refresh_rate = 100;
@@ -62,6 +64,7 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos, uint16_t aLength, uint16_
 	speed = 100;
 	moving = false;
 	lastStickUpdate = millis();
+	lastRunTime = millis();
 	calibration.calibrate(aMinMicros, aMinAngle, aMaxMicros, aMaxAngle);
 
 	max_refresh_rate = 100;
@@ -155,14 +158,13 @@ void Joint::stop() {
 
 boolean Joint::run() {
 
-	static unsigned long prev = millis();
 	unsigned long cur = millis();
-	unsigned long deltaTime = cur - prev;
+	unsigned long deltaTime = cur - lastRunTime;
 
 	if (position != target) {
 
 		if(!moving){
-			prev = cur; // reset our timer for the new move
+			lastRunTime = cur; // reset our timer for the new move
 			moving = true;
 			return false;  // bail out until next run
 		}
@@ -184,7 +186,7 @@ boolean Joint::run() {
 				}
 			}
 			position = calibration.constrainMicros(position);
-			prev = cur;
+			lastRunTime = cur;
 			if(position == target){
 				moving = false;
 			}

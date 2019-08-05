@@ -46,6 +46,7 @@ private:
 	uint16_t offset;  // mm in vertical offset
 
 	uint32_t lastStickUpdate;
+	uint32_t lastRunTime;
 
 	ServoCalibrationStruct calibration;
 
