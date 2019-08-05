@@ -53,8 +53,8 @@ Arm_Class arm(joints, NUMBER_OF_JOINTS);
 
 //  declared in Defines.h for everyone to use.
 boolean eepromGood(){
-	byte flag = EEPROM.read(EEPROM_START_FLAG);
-	return (flag == EEPROM_START_VALUE);
+	byte flag = EEPROM.read(EEPROM_START_FLAG_ADDRESS);
+	return (flag == EEPROM_START_FLAG_VALUE);
 }
 
 

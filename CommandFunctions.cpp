@@ -107,6 +107,16 @@ void controlCodes(char* p){
 	case 'L':
 		arm.loadCalibrations();
 		break;
+	case 'C':
+		//save position
+		int a = atoi(p+2);
+		arm.savePosition(a);
+		break;
+	case 'V':
+		//load position
+		int a = atoi(p+2);
+		arm.gotoPosition(a);
+		break;
 	case 'A':
 		arm.attachAll();
 		break;

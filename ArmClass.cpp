@@ -154,12 +154,11 @@ int Arm_Class::savePosition(int aAddress){
 //  Sends Robot to a position with the speed values it already has.
 int Arm_Class::gotoPosition(int aAddress){
 
-
 	int add = (aAddress >= 32)? aAddress : EEPROM_POSITION(aAddress);
 	int offset = 0;
-	int t;
 
 	for(int i = 0; i < numJoints; i++){
+		int t;
 		offset += readFromEEPROM(add + offset, t);
 		joints[i].setTarget(t);
 	}
@@ -174,10 +173,10 @@ int Arm_Class::gotoPosition(int aAddress){
 
 int Arm_Class::loadMovement(int aAddress) {
 	int a = 0;
-	int t;
-	int s;
 
 	for (int i = 0; i < numJoints; i++) {
+		int t;
+		int s;
 		a += readFromEEPROM(aAddress + a, t);
 		a += readFromEEPROM(aAddress + a, s);
 
