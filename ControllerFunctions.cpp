@@ -26,7 +26,7 @@ Arm_Class* arm_ptr;
 
 extern DriveModeEnum currentDriveMode;
 
-boolean invertWrist = false;
+boolean invertWrist = true;
 boolean invertElbow = false;
 boolean invertShoulder = false;
 
