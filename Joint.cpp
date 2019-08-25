@@ -30,6 +30,9 @@ Joint::Joint(char* aName, uint8_t aPin, uint16_t aPos) {
 	length = 100;
 	offset = 0;
 
+	//TODO:
+	// moving can be calculated from target and speed
+	// no real need for a whole extra variable to have to keep track of.
 	moving = false;
 	calibration.calibrate(544, 0.0, 2400, 180.0);
 	lastStickUpdate = millis();
@@ -128,6 +131,10 @@ uint16_t Joint::setTarget(uint16_t aTarget){
 	return target;
 }
 
+uint16_t Joint::getTarget(){
+	return target;
+}
+
 float Joint::setTargetAngle(float aAngle){
 	aAngle = calibration.constrainAngle(aAngle);
 	target = calibration.angleToMicros(aAngle);
@@ -150,6 +157,10 @@ float Joint::setTargetAngle(float aAngle, uint16_t aSpeed){
 
 void Joint::setSpeed(uint16_t aSpeed){
 	speed = aSpeed;
+}
+
+uint16_t Joint::getSpeed(){
+	return speed;
 }
 
 void Joint::stop() {

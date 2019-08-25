@@ -67,15 +67,47 @@ void setJointIndex(char* p){
 }
 
 void requestFromArm(char *p) {
-	for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-		Serial.print("<");
-		Serial.print(i);
-		Serial.print(",");
-		Serial.print(arm.getJoint(i)->getPosition());
-//					Serial.print(",");
-//					Serial.print(joints[i].isMoving());
+	switch (p[1]) {
+	//TODO:  // This should be fixed up right before it bites us
+	// Just an R with nothing (compatibility with DiscoBot for now)
+	case '>':
+	case ',':
+		// The new way
+	case 'p':
+		Serial.print("<p");
+		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+			Serial.print(",");
+			Serial.print(i);
+			Serial.print(",");
+			Serial.print(arm.getJoint(i)->getPosition());
+		}
 		Serial.print(">");
+		break;
+
+	case 't':
+		Serial.print("<t");
+		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+			Serial.print(",");
+			Serial.print(i);
+			Serial.print(",");
+			Serial.print(arm.getJoint(i)->getTarget());
+		}
+		Serial.print(">");
+		break;
+
+	case 's':
+		Serial.print("<s");
+		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+			Serial.print(",");
+			Serial.print(i);
+			Serial.print(",");
+			Serial.print(arm.getJoint(i)->getSpeed());
+		}
+		Serial.print(">");
+		break;
+
 	}
+
 }
 
 void bootResponse(char* p){

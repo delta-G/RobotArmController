@@ -77,7 +77,9 @@ public:
 
 	uint16_t setTarget(uint16_t);
 	uint16_t setTarget(uint16_t, uint16_t);
+	uint16_t getTarget();
 	void setSpeed(uint16_t);
+	uint16_t getSpeed();
 
 	float getAngle();
 	float setTargetAngle(float);
