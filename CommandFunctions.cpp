@@ -68,44 +68,60 @@ void setJointIndex(char* p){
 
 void requestFromArm(char *p) {
 	switch (p[1]) {
-	//TODO:  // This should be fixed up right before it bites us
-	// Just an R with nothing (compatibility with DiscoBot for now)
-	case '>':
-	case ',':
-		// The new way
-	case 'p':
-		Serial.print("<p");
+	case 'p': {
+		uint8_t rawBuf[21];
+		rawBuf[0] = '<';
+		rawBuf[1] = 0x12;
+		rawBuf[2] = 21;
+		rawBuf[3] = 'p';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-			Serial.print(",");
-			Serial.print(i);
-			Serial.print(",");
-			Serial.print(arm.getJoint(i)->getPosition());
-		}
-		Serial.print(">");
-		break;
 
-	case 't':
-		Serial.print("<t");
+			rawBuf[(2 * i) + 4] = (byte)((arm.getJoint(i)->getPosition()) >> 8) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte)(arm.getJoint(i)->getPosition()) & 0xFF;
+
+		}
+		rawBuf[20] = '>';
+		for(int i=0; i<21; i++){
+			Serial.write(rawBuf[i]);
+		}
+		break;
+	}
+	case 't':{
+		uint8_t rawBuf[21];
+		rawBuf[0] = '<';
+		rawBuf[1] = 0x12;
+		rawBuf[2] = 21;
+		rawBuf[3] = 't';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-			Serial.print(",");
-			Serial.print(i);
-			Serial.print(",");
-			Serial.print(arm.getJoint(i)->getTarget());
-		}
-		Serial.print(">");
-		break;
 
-	case 's':
-		Serial.print("<s");
+			rawBuf[(2 * i) + 4] = (byte)((arm.getJoint(i)->getTarget()) >> 8) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte)(arm.getJoint(i)->getTarget()) & 0xFF;
+
+		}
+		rawBuf[20] = '>';
+		for(int i=0; i<21; i++){
+			Serial.write(rawBuf[i]);
+		}
+		break;
+	}
+	case 's':{
+		uint8_t rawBuf[21];
+		rawBuf[0] = '<';
+		rawBuf[1] = 0x12;
+		rawBuf[2] = 21;
+		rawBuf[3] = 's';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-			Serial.print(",");
-			Serial.print(i);
-			Serial.print(",");
-			Serial.print(arm.getJoint(i)->getSpeed());
-		}
-		Serial.print(">");
-		break;
 
+			rawBuf[(2 * i) + 4] = (byte)((arm.getJoint(i)->getSpeed()) >> 8) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte)(arm.getJoint(i)->getSpeed()) & 0xFF;
+
+		}
+		rawBuf[20] = '>';
+		for(int i=0; i<21; i++){
+			Serial.write(rawBuf[i]);
+		}
+		break;
+	}
 	}
 
 }
@@ -225,7 +241,24 @@ void moveToPosition(char *p) {
 }
 
 
+void sendRawArmData(){
 
+	uint8_t rawBuf[19];
+	rawBuf[0] = '<';
+	rawBuf[1] = 'p';
+	for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+
+		rawBuf[(2*i)+2] = ((arm.getJoint(i)->getPosition()) >> 8) & 0xFF;
+		rawBuf[(2*i)+3] = (arm.getJoint(i)->getPosition())  & 0xFF;
+
+	}
+	rawBuf[18] = '>';
+
+	for(int i = 0; i < 19; i++){
+		Serial.write(rawBuf[i]);
+	}
+
+}
 
 
 

@@ -42,6 +42,8 @@ void moveToPosition(char* p);
 
 void xboxCommand(char* p);
 
+void sendRawArmData();
+
 
 
 #endif /* COMMANDFUNCTIONS_H_ */
