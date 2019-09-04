@@ -28,6 +28,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "Defines.h"
 #include "ArmClass.h"
 
+#include "githash.h"
+
 void startCommands(char* p);
 void setJointIndex(char* p);
 void requestFromArm(char *p);

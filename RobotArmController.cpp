@@ -45,8 +45,8 @@ Joint joints[NUMBER_OF_JOINTS] = {
 		Joint("Wrist", 7, 1500, 158, 32, 605, -1.16937, 2400, 2.12930),
 		Joint("Rotate", 8, 1500, 0, 564, -0.34907, 2400, 3.316126),
 		Joint("Grip", 9, 2250, 0, 1680, 1.923, 2400, PI),
-		Joint("Pan", A0, 1350),
-		Joint("Tilt", A1, 1220)
+		Joint("Pan", A0, 1420, 0, 600, -1.57, 2350, PI),
+		Joint("Tilt", A1, 1220, 0, 600, 0.87, 1470, -0.35)
 };
 
 Arm_Class arm(joints, NUMBER_OF_JOINTS);

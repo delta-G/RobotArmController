@@ -68,6 +68,16 @@ void setJointIndex(char* p){
 
 void requestFromArm(char *p) {
 	switch (p[1]) {
+	case 'G': {
+			char gitbuf[9];
+			strncpy(gitbuf, GIT_HASH, 8);
+			gitbuf[8] = 0;
+			Serial.print("<RMBGIT-");
+			Serial.print(gitbuf);
+			Serial.print(">");
+			break;
+		}
+
 	case 'p': {
 		uint8_t rawBuf[21];
 		rawBuf[0] = '<';
@@ -138,16 +148,15 @@ void controlCodes(char* p){
 	case 'M':    // set mode (D, A, M = Drive, Arm, Mine)
 		if (p[2] == 'D') {
 			currentDriveMode = DRIVE;
-			Serial.print("<ARM_MODE_ACTIVE>");
+			Serial.print("<DRIVE_MODE>");
 		} else if (p[2] == 'A') {
 			currentDriveMode = ARM;
-			Serial.print("<ARM_MODE_ACTIVE>");
+			Serial.print("<ARM_MODE>");
 		} else if (p[2] == 'M') {
 			currentDriveMode = MINE;
-			Serial.print("<ARM_MODE_ACTIVE>");
+			Serial.print("<MINE_MODE>");
 		}
 		break;
-
 
 	case 'S':
 		arm.saveCalibrations();
