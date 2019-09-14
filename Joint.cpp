@@ -304,9 +304,6 @@ void Joint::useStick(int aReading){
 
 
 
-
-
-
 /*********
 
 

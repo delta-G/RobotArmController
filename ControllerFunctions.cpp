@@ -69,6 +69,9 @@ void rawMode() {
 	else if (xbox_ptr->isPressed(R1)){
 		arm_ptr->getJoint(BASE)->useStick(-3276);
 	}
+	else {
+		arm_ptr->getJoint(BASE)->useStick(0);
+	}
 
 	if (xbox_ptr->isClicked(R3)){
 		invertElbow = !invertElbow;
