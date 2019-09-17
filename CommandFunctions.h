@@ -43,6 +43,7 @@ void controlCodes(char* p);
 void moveToPosition(char* p);
 
 void xboxCommand(char* p);
+void xboxCommandRaw(char*);
 
 void sendRawArmData();
 

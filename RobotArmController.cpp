@@ -93,6 +93,8 @@ void setup() {
 
 	initControllerFunctions(&arm, &xbox);
 
+	parser.setRawCallback(rawDataCallback);
+
 	Serial.print(ARM_INIT_COMPLETE);
 
 }
@@ -129,6 +131,10 @@ void powerDownServos(){
 	delay(10);
 	digitalWrite(SERVO_POWER_PIN, LOW);
 	delay(10);
+}
+
+void rawDataCallback(char* p){
+	xboxCommandRaw(p);
 }
 
 void parseCommand(char *aCommand) {

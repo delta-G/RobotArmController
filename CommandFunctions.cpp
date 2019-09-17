@@ -55,6 +55,16 @@ void xboxCommand(char* p){
 	xbox.handleIncomingASCII(p+1);
 }
 
+void xboxCommandRaw(char* p) {
+	if(p[1] == 0x14 && p[2] == 16){
+		// It's a real raw xbox command from Base
+		uint8_t temp[14];
+		memcpy(temp, p+1, 14);
+		temp[1] = 0x0D;  // xboxHandler Expects this
+		xbox.handleIncoming(temp);
+	}
+}
+
 void startCommands(char* p){
 	// RMB gets an A as a signal to send to arm
 	// This is that A

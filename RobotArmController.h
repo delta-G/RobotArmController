@@ -57,6 +57,7 @@ void setup();
 void loop();
 void heartbeat();
 
+void rawDataCallback(char*);
 void parseCommand(char* aCommand);
 void programEEPROM(char*);
 
