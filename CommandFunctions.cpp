@@ -89,55 +89,58 @@ void requestFromArm(char *p) {
 		}
 
 	case 'p': {
-		uint8_t rawBuf[21];
+		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
 		rawBuf[1] = 0x12;
-		rawBuf[2] = 21;
-		rawBuf[3] = 'p';
+		rawBuf[2] = 22;
+		rawBuf[3] = arm.getStatusByte();
+		rawBuf[4] = 'p';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
 
-			rawBuf[(2 * i) + 4] = (byte)((arm.getJoint(i)->getPosition()) >> 8) & 0xFF;
-			rawBuf[(2 * i) + 5] = (byte)(arm.getJoint(i)->getPosition()) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte)((arm.getJoint(i)->getPosition()) >> 8) & 0xFF;
+			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getPosition()) & 0xFF;
 
 		}
-		rawBuf[20] = '>';
-		for(int i=0; i<21; i++){
+		rawBuf[21] = '>';
+		for(int i=0; i<22; i++){
 			Serial.write(rawBuf[i]);
 		}
 		break;
 	}
 	case 't':{
-		uint8_t rawBuf[21];
+		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
 		rawBuf[1] = 0x12;
-		rawBuf[2] = 21;
-		rawBuf[3] = 't';
+		rawBuf[2] = 22;
+		rawBuf[3] = arm.getStatusByte();
+		rawBuf[4] = 't';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
 
-			rawBuf[(2 * i) + 4] = (byte)((arm.getJoint(i)->getTarget()) >> 8) & 0xFF;
-			rawBuf[(2 * i) + 5] = (byte)(arm.getJoint(i)->getTarget()) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte)((arm.getJoint(i)->getTarget()) >> 8) & 0xFF;
+			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getTarget()) & 0xFF;
 
 		}
-		rawBuf[20] = '>';
-		for(int i=0; i<21; i++){
+		rawBuf[21] = '>';
+		for(int i=0; i<22; i++){
 			Serial.write(rawBuf[i]);
 		}
 		break;
 	}
 	case 's':{
-		uint8_t rawBuf[21];
+		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
 		rawBuf[1] = 0x12;
-		rawBuf[2] = 21;
-		rawBuf[3] = 's';
+		rawBuf[2] = 22;
+		rawBuf[3] = arm.getStatusByte();
+		rawBuf[4] = 's';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
 
-			rawBuf[(2 * i) + 4] = (byte)((arm.getJoint(i)->getSpeed()) >> 8) & 0xFF;
-			rawBuf[(2 * i) + 5] = (byte)(arm.getJoint(i)->getSpeed()) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte)((arm.getJoint(i)->getSpeed()) >> 8) & 0xFF;
+			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getSpeed()) & 0xFF;
 
 		}
-		rawBuf[20] = '>';
-		for(int i=0; i<21; i++){
+		rawBuf[21] = '>';
+		for(int i=0; i<22; i++){
 			Serial.write(rawBuf[i]);
 		}
 		break;
@@ -199,7 +202,7 @@ void controlCodes(char* p){
 		//power up
 		arm.detachAll();
 		delay(10);
-		digitalWrite((byte)SERVO_POWER_PIN, HIGH);
+		arm.setServoPower(true);
 		delay(10);
 		arm.init();   // 2 seconds of blocking delay !!!!
 		break;
@@ -207,7 +210,7 @@ void controlCodes(char* p){
 		// power down
 		arm.detachAll();
 		delay(10);
-		digitalWrite((byte)SERVO_POWER_PIN, LOW);
+		arm.setServoPower(false);
 		delay(10);
 		break;
 	}

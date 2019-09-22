@@ -73,6 +73,7 @@ Arm_Class::Arm_Class(){
 	joints = 0;
 	numJoints = 8;
 	positionValid = false;
+	servoPower = false;
 
 }
 
@@ -80,10 +81,24 @@ Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 	joints = aJoints;
 	numJoints = aNum;
 	positionValid = false;
+	servoPower = false;
+}
+
+uint8_t Arm_Class::getStatusByte(){
+	uint8_t retval = 0;
+	if(servoPower){
+		retval |= 0x01;
+	}
+	return retval;
 }
 
 int Arm_Class::getNumJoints(){
 	return numJoints;
+}
+
+void Arm_Class::setServoPower(boolean aBoo){
+	servoPower = aBoo;
+	digitalWrite((byte)SERVO_POWER_PIN, aBoo);
 }
 
 Joint* Arm_Class::getJoint(unsigned int aIndex){

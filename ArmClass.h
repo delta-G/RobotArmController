@@ -56,6 +56,8 @@ private:
 	Joint* joints;
 	int numJoints;
 
+	boolean servoPower;
+
 
 
 public:
@@ -70,6 +72,7 @@ public:
 	void init();
 	void detachAll();
 	void attachAll();
+	void setServoPower(boolean);
 	void run();
 	void stop();
 	boolean isMoving();
@@ -93,6 +96,8 @@ public:
 	boolean positionValid;
 	void invalidatePosition();
 	void findPosition();
+
+	uint8_t getStatusByte();
 
 	ArmPositionStruct jointSpaceToPosition(JointSpaceStruct);
 
