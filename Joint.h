@@ -98,6 +98,8 @@ public:
 	void followTheStick(int);
 	void useStick(int);
 
+	void advance(int);
+
 	XYandAngle findEndXY(XYpoint aPivot, float aAngle);
 	XYandAngle findEndXY(XYandAngle aPivot);
 	XYandAngle findEndXY(XYandAngle aPivot, float aPosition);

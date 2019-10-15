@@ -254,31 +254,6 @@ void Joint::followTheStick(int aReading){
 
 void Joint::useStick(int aReading){
 
-
-	//  **TODO
-	/*
-	 *
-	 * We need for this to affect the speed variable and we need min and max
-	 * speeds.  It's OK if they are calculated in function but we need to
-	 * think about how we're going to do that.
-	 *
-	 * SOOOOOOO
-	 * Lets scale the input between 0 and 1 for this and then multiply that
-	 * times our speed variable and set the speed by that.  We just need to
-	 * think of a reasonable time in the future to set the target value
-	 * or do we set it with move to immediates and hope it's fast enough?
-	 * We could just track the last update time and go from there based on
-	 * the speed we come up with.  Yeah, let's try that first.
-	 *
-	 *
-	 * We could even use the method from DiscoBot where we use the
-	 * known time dif but I'd rather not rely on that when we have
-	 * unknowns about transmission speeds.
-	 *
-	 *
-	 */
-
-
 	unsigned long cm = millis();
 
 	//The delta time should be last time since a
@@ -301,6 +276,24 @@ void Joint::useStick(int aReading){
 	}
 }
 
+
+void Joint::advance(int aMultiplier){
+
+	// this is sharing a previous millis variable
+	// lastStickUpdate with useStick.
+
+	unsigned long cm = millis();
+
+	float timeScale = (cm - lastStickUpdate) / 1000.0;
+	int16_t step = speed * timeScale;
+
+	if(step >= 1){
+		//unlike useStick, here we just take a single step
+		// sign on multiplier sets direction
+		moveToImmediate(position + aMultiplier);
+		lastStickUpdate = cm;
+	}
+}
 
 
 
