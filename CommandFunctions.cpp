@@ -25,6 +25,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
  */
 
 extern Arm_Class arm;
+extern GimbalClass gimbal;
 extern XboxHandler xbox;
 
 extern DriveModeEnum currentDriveMode;
@@ -101,6 +102,13 @@ void requestFromArm(char *p) {
 			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getPosition()) & 0xFF;
 
 		}
+		uint16_t pan = gimbal.getPanJoint()->getPosition();
+		uint16_t tilt = gimbal.getTiltJoint()->getPosition();
+		rawBuf[17] = pan >> 8;
+		rawBuf[18] = pan & 0xFF;
+		rawBuf[19] = tilt >> 8;
+		rawBuf[20] = tilt & 0xFF;
+
 		rawBuf[21] = '>';
 		for(int i=0; i<22; i++){
 			Serial.write(rawBuf[i]);
@@ -116,12 +124,19 @@ void requestFromArm(char *p) {
 		rawBuf[4] = 't';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
 
-			rawBuf[(2 * i) + 5] = (byte)((arm.getJoint(i)->getTarget()) >> 8) & 0xFF;
-			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getTarget()) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte) ((arm.getJoint(i)->getTarget()) >> 8)
+					& 0xFF;
+			rawBuf[(2 * i) + 6] = (byte) (arm.getJoint(i)->getTarget()) & 0xFF;
 
 		}
+		uint16_t pan = gimbal.getPanJoint()->getTarget();
+		uint16_t tilt = gimbal.getTiltJoint()->getTarget();
+		rawBuf[17] = pan >> 8;
+		rawBuf[18] = pan & 0xFF;
+		rawBuf[19] = tilt >> 8;
+		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		for(int i=0; i<22; i++){
+		for (int i=0; i<22; i++){
 			Serial.write(rawBuf[i]);
 		}
 		break;
@@ -135,12 +150,19 @@ void requestFromArm(char *p) {
 		rawBuf[4] = 's';
 		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
 
-			rawBuf[(2 * i) + 5] = (byte)((arm.getJoint(i)->getSpeed()) >> 8) & 0xFF;
-			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getSpeed()) & 0xFF;
+			rawBuf[(2 * i) + 5] = (byte) ((arm.getJoint(i)->getSpeed()) >> 8)
+					& 0xFF;
+			rawBuf[(2 * i) + 6] = (byte) (arm.getJoint(i)->getSpeed()) & 0xFF;
 
 		}
+		uint16_t pan = gimbal.getPanJoint()->getSpeed();
+		uint16_t tilt = gimbal.getTiltJoint()->getSpeed();
+		rawBuf[17] = pan >> 8;
+		rawBuf[18] = pan & 0xFF;
+		rawBuf[19] = tilt >> 8;
+		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		for(int i=0; i<22; i++){
+		for (int i = 0; i < 22; i++) {
 			Serial.write(rawBuf[i]);
 		}
 		break;
@@ -173,9 +195,11 @@ void controlCodes(char* p){
 
 	case 'S':
 		arm.saveCalibrations();
+		gimbal.saveCalibrations();
 		break;
 	case 'L':
 		arm.loadCalibrations();
+		gimbal.loadCalibrations();
 		break;
 	case 'C':{
 		//save position
@@ -201,14 +225,17 @@ void controlCodes(char* p){
 	case 'P':
 		//power up
 		arm.detachAll();
+		gimbal.detach();
 		delay(10);
 		arm.setServoPower(true);
 		delay(10);
 		arm.init();   // 2 seconds of blocking delay !!!!
+		gimbal.init();
 		break;
 	case 'p':
 		// power down
 		arm.detachAll();
+		gimbal.detach();
 		delay(10);
 		arm.setServoPower(false);
 		delay(10);
@@ -219,38 +246,68 @@ void controlCodes(char* p){
 
 
 void setTarget(char *p) {
+	int targ = atoi((const char*) (p + 1));
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
-		int targ = atoi((const char*) (p + 1));
 		arm.getJoint(jointIndex)->setTarget(targ);
+	}
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->setTarget(targ);
+	}
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->setTarget(targ);
 	}
 }
 
 void setAngle(char *p) {
+	int targ = atoi((const char*) (p + 1));
+	float flargRad = (float)targ * PI / 180;
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
-		int targ = atoi((const char*) (p + 1));
-		float flargRad = (float)targ * PI / 180;
 		arm.getJoint(jointIndex)->setTargetAngle(flargRad);
+	}
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->setTargetAngle(flargRad);
+	}
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->setTargetAngle(flargRad);
 	}
 }
 
 void setSpeed(char *p) {
+	int spd = atoi((const char*) (p + 1));
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
-		int spd = atoi((const char*) (p + 1));
 		arm.getJoint(jointIndex)->setSpeed(spd);
+	}
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->setSpeed(spd);
+	}
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->setSpeed(spd);
 	}
 }
 
 void useStick(char *p) {
+	int stickPos = atoi((const char*) (p + 1));
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
-		int stickPos = atoi((const char*) (p + 1));
 		arm.getJoint(jointIndex)->useStick(stickPos);
+	}
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->useStick(stickPos);
+	}
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->useStick(stickPos);
 	}
 }
 
 void followStick(char *p) {
+	int stickPos = atoi((const char*) (p + 1));
 	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
-		int stickPos = atoi((const char*) (p + 1));
 		arm.getJoint(jointIndex)->followTheStick(stickPos);
+	}
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->followTheStick(stickPos);
+	}
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->followTheStick(stickPos);
 	}
 }
 
@@ -260,28 +317,13 @@ void moveToPosition(char *p) {
 		arm.getJoint(jointIndex)->moveToImmediate(position);
 		// jointIndex = -1;   // comment this line to allow run-on commands
 	}
-}
-
-
-void sendRawArmData(){
-
-	uint8_t rawBuf[19];
-	rawBuf[0] = '<';
-	rawBuf[1] = 'p';
-	for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-
-		rawBuf[(2*i)+2] = ((arm.getJoint(i)->getPosition()) >> 8) & 0xFF;
-		rawBuf[(2*i)+3] = (arm.getJoint(i)->getPosition())  & 0xFF;
-
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->moveToImmediate(position);
 	}
-	rawBuf[18] = '>';
-
-	for(int i = 0; i < 19; i++){
-		Serial.write(rawBuf[i]);
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->moveToImmediate(position);
 	}
-
 }
-
 
 
 

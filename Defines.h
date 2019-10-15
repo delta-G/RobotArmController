@@ -36,6 +36,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #define EEPROM_FLAG_BYTE 1
 
 #define EEPROM_CALIBRATION_START 24  // 12 bytes per calibration * 8 joints = 96 bytes of calibration!
+#define EEPROM_GIMBAL_CALIBRATION_OFFSET 72   // 72 bytes (12 * 6) of arm calibration then Gimbal
 // 96 + 24 puts the initial states starting at 120
 #define EEPROM_INITIAL_STATES_START (EEPROM_CALIBRATION_START + (NUMBER_OF_JOINTS * sizeof(ServoCalibrationStruct)));
 // initial states takes 6 bytes per servo times 8 servos or 48 bytes.

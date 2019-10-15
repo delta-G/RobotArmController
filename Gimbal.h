@@ -38,9 +38,16 @@ public:
 	GimbalClass(Joint*, Joint*);
 
 	void init();
+	void detach();
 
 	void run();
 	void stop();
+
+	Joint* getPanJoint();
+	Joint* getTiltJoint();
+
+	int saveCalibrations();
+	int loadCalibrations();
 
 };
 

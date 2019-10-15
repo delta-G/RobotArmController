@@ -32,10 +32,23 @@ GimbalClass::GimbalClass(Joint* aPanJoint, Joint* aTiltJoint){
 	tiltJoint = aTiltJoint;
 }
 
+Joint* GimbalClass::getPanJoint(){
+	return panJoint;
+}
+
+Joint* GimbalClass::getTiltJoint(){
+	return tiltJoint;
+}
+
 void GimbalClass::init(){
 	panJoint->init();
 	delay(25);
 	tiltJoint->init();
+}
+
+void GimbalClass::detach(){
+	panJoint->detach();
+	tiltJoint->detach();
 }
 
 void GimbalClass::run(){
@@ -48,3 +61,28 @@ void GimbalClass::stop(){
 	panJoint->stop();
 	tiltJoint->stop();
 }
+
+int GimbalClass::saveCalibrations(){
+
+	int add = 0;
+	add += panJoint->saveCalibration(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET + add);
+	add += tiltJoint->saveCalibration(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET + add);
+	return add;
+}
+
+int GimbalClass::loadCalibrations() {
+
+	int add = 0;
+	byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
+	flags = ~flags;  // flags are set as 0 since cleared EEPROM is 0xFF
+	if (flags & FLAG_CALIBRATIONS_SAVED) {
+		add += panJoint->loadCalibration(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET + add);
+		add += tiltJoint->loadCalibration(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET + add);
+	}
+
+	//  Cool side effect, this returns 0 if the flag isn't set.
+	return add;
+}
+
+
+

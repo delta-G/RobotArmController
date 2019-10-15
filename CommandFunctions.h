@@ -27,6 +27,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "Defines.h"
 #include "ArmClass.h"
+#include "Gimbal.h"
 
 #include "githash.h"
 
@@ -45,7 +46,6 @@ void moveToPosition(char* p);
 void xboxCommand(char* p);
 void xboxCommandRaw(char*);
 
-void sendRawArmData();
 
 
 

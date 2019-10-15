@@ -268,7 +268,7 @@ XYandAngle Arm_Class::findEndEffector(){
 
 	// This xperiment is just the 2D plane of the arm, so
 	// we can locate the pivot point of the shoulder by just
-	// adding to our Y variable (Z direction in 3D)
+	// adding to our Y variable (Z direction in 3D) X - Z plane
 
 	XYpoint basePoint = {0,0};
 

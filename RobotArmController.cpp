@@ -49,7 +49,8 @@ Joint joints[NUMBER_OF_JOINTS] = {
 		Joint("Tilt", A1, 1220, 0, 600, 0.87, 1470, -0.35)
 };
 
-Arm_Class arm(joints, NUMBER_OF_JOINTS);
+Arm_Class arm(joints, NUMBER_OF_JOINTS - 2);
+GimbalClass gimbal(&joints[NUMBER_OF_JOINTS - 2], &joints[NUMBER_OF_JOINTS - 1]);
 
 //  declared in Defines.h for everyone to use.
 boolean eepromGood(){
@@ -83,6 +84,7 @@ void setup() {
 
 	arm.init();  // 2 seconds of blocking delay!!!
 	delay(250);
+	gimbal.init();
 
 	heartbeatDelay = 500;
 
@@ -102,6 +104,7 @@ void setup() {
 void loop() {
 
 	arm.run();             // things the arm does by itself
+	gimbal.run();          // things the gimbal does
 	parser.run();          // handle any serial data
 	heartbeat();
 	mainControllerLoop();  // xbox controller stuff
@@ -119,15 +122,18 @@ void heartbeat() {
 
 void powerUpServos(){
 	arm.detachAll();
+	gimbal.detach();
 	delay(10);
 	digitalWrite(SERVO_POWER_PIN, HIGH);
 	delay(10);
 	arm.init();   // 2 seconds of blocking delay !!!!
+	gimbal.init();
 }
 
 
 void powerDownServos(){
 	arm.detachAll();
+	gimbal.detach();
 	delay(10);
 	digitalWrite(SERVO_POWER_PIN, LOW);
 	delay(10);
