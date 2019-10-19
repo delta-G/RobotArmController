@@ -24,9 +24,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "Arduino.h"
 #include <Servo.h>
 #include <EepromFuncs.h>
-#include "Defines.h"
 
-#include "ServoCalibration.h"
+#include <ServoCalibration.h>
 #include "SpacePoint.h"
 
 XYpoint solveTriangle (float aAngle, uint16_t aLength);
