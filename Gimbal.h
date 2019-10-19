@@ -43,6 +43,9 @@ public:
 	void run();
 	void stop();
 
+	float getPanAngle();
+	float getTiltAngle();
+
 	Joint* getPanJoint();
 	Joint* getTiltJoint();
 
@@ -50,6 +53,7 @@ public:
 	int loadCalibrations();
 
 };
+
 
 
 

@@ -62,6 +62,15 @@ void GimbalClass::stop(){
 	tiltJoint->stop();
 }
 
+
+float GimbalClass::getPanAngle(){
+	return panJoint->getAngle();
+}
+
+float GimbalClass::getTiltAngle(){
+	return tiltJoint->getAngle();
+}
+
 int GimbalClass::saveCalibrations(){
 
 	int add = 0;
