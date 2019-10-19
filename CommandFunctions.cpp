@@ -195,15 +195,20 @@ void controlCodes(char* p){
 
 	case 'S':
 		arm.saveCalibrations();
-		gimbal.saveCalibrations();
+		gimbal.saveCalibrations(
+				EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET);
 		break;
 	case 'L':
 		arm.loadCalibrations();
-		gimbal.loadCalibrations();
+		byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
+		flags = ~flags;  // flags are set as 0 since cleared EEPROM is 0xFF
+		if (flags & FLAG_CALIBRATIONS_SAVED) {
+			gimbal.loadCalibrations(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET);
+		}
 		break;
-	case 'C':{
+	case 'C': {
 		//save position
-		int a = atoi(p+2);
+		int a = atoi(p + 2);
 		arm.savePosition(a);
 		break;
 	}

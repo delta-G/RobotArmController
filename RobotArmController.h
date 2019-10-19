@@ -35,7 +35,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "ControllerFunctions.h"
 #include "Joint.h"
 #include "ArmClass.h"
-#include "Gimbal.h"
+#include <Gimbal.h>
 #include "SpacePoint.h"
 
 
