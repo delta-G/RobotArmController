@@ -40,6 +40,7 @@ void setAngle(char* p);
 void setSpeed(char* p);
 void useStick(char *p);
 void followStick(char *p);
+void advanceJoint(char *p);
 void controlCodes(char* p);
 void moveToPosition(char* p);
 

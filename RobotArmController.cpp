@@ -44,7 +44,7 @@ Joint joints[NUMBER_OF_JOINTS] = {
 		Joint(6, 1215, 98, 544, 2.96706, 2400, -0.13963),
 		Joint(7, 1500, 158, 32, 605, -1.16937, 2400, 2.12930),
 		Joint(8, 1500, 0, 564, -0.34907, 2400, 3.316126),
-		Joint(9, 2250, 0, 1680, 1.923, 2400, PI),
+		Joint(9, 2250, 0, 1850, 1.923, 2400, PI),
 		Joint(A0, 1420, 0, 600, -1.57, 2350, PI),
 		Joint(A1, 1220, 0, 600, 0.87, 1470, -0.35)
 };
@@ -94,6 +94,12 @@ void setup() {
 	}
 
 	initControllerFunctions(&arm, &xbox);
+
+	for(int i=0; i<5; i++){
+		joints[i].setSpeed(200);
+	}
+	joints[6].setSpeed(300);
+	joints[7].setSpeed(300);
 
 	parser.setRawCallback(rawDataCallback);
 

@@ -43,6 +43,7 @@ Command commands[] = {
 		{ 'T', setTarget },
 		{ 'L', setAngle },
 		{ 's', setSpeed },
+		{ 'a', advanceJoint },
 		{ 'J', useStick },
 		{ 'F', followStick },
 		{ 'C', controlCodes },
@@ -198,7 +199,7 @@ void controlCodes(char* p){
 		gimbal.saveCalibrations(
 				EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET);
 		break;
-	case 'L':
+	case 'L':{
 		arm.loadCalibrations();
 		byte flags = EEPROM.read(EEPROM_FLAG_BYTE);
 		flags = ~flags;  // flags are set as 0 since cleared EEPROM is 0xFF
@@ -206,6 +207,7 @@ void controlCodes(char* p){
 			gimbal.loadCalibrations(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET);
 		}
 		break;
+	}
 	case 'C': {
 		//save position
 		int a = atoi(p + 2);
@@ -287,6 +289,19 @@ void setSpeed(char *p) {
 	}
 	else if(jointIndex == arm.getNumJoints() +1){
 		gimbal.getTiltJoint()->setSpeed(spd);
+	}
+}
+
+void advanceJoint(char* p) {
+	int mult = atoi((const char*) (p + 1));
+	if (jointIndex >= 0 && jointIndex < arm.getNumJoints()) {
+		arm.getJoint(jointIndex)->advance(mult);
+	}
+	else if(jointIndex == arm.getNumJoints()){
+		gimbal.getPanJoint()->advance(mult);
+	}
+	else if(jointIndex == arm.getNumJoints() +1){
+		gimbal.getTiltJoint()->advance(mult);
 	}
 }
 
