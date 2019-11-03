@@ -48,12 +48,12 @@ void mainControllerLoop() {
 
 void rawMode() {
 
+	static boolean followTrigMode = false;
+
 	int16_t rotateVal = xbox_ptr->getHatValue(RightHatX);
 	int16_t wristVal = xbox_ptr->getHatValue(RightHatY);
 	int16_t shoulderVal = xbox_ptr->getHatValue(LeftHatX);
 	int16_t elbowVal = xbox_ptr->getHatValue(LeftHatY);
-
-	int16_t gripVal = (xbox_ptr->getTriggerValue(R2) - xbox_ptr->getTriggerValue(L2)) * 128;
 
 	//  Don't mess with the D-pad, Robot is using it to drive
 	arm_ptr->getJoint(ROTATE)->useStick(rotateVal);
@@ -61,18 +61,12 @@ void rawMode() {
 	arm_ptr->getJoint(SHOULDER)->useStick(invertShoulder? -shoulderVal : shoulderVal);
 	arm_ptr->getJoint(ELBOW)->useStick(invertElbow? -elbowVal : elbowVal);
 
-	arm_ptr->getJoint(GRIP)->useStick(gripVal);
-
 	if(xbox_ptr->isPressed(L1)){
-		arm_ptr->getJoint(BASE)->useStick(3276);
+		arm_ptr->getJoint(BASE)->advance(200);
 	}
 	else if (xbox_ptr->isPressed(R1)){
-		arm_ptr->getJoint(BASE)->useStick(-3276);
+		arm_ptr->getJoint(BASE)->advance(-200);
 	}
-	else {
-		arm_ptr->getJoint(BASE)->useStick(0);
-	}
-
 	if (xbox_ptr->isClicked(R3)){
 		invertElbow = !invertElbow;
 		invertWrist = !invertWrist;
@@ -80,6 +74,21 @@ void rawMode() {
 	if (xbox_ptr->isClicked(L3)){
 		invertShoulder = !invertShoulder;
 	}
+
+	if (xbox_ptr->isClicked(X)){
+		followTrigMode = !followTrigMode;
+	}
+
+	int16_t gripVal = 0;
+
+	if (followTrigMode) {
+		gripVal = xbox_ptr->getTriggerValue(R2) * 128;
+		arm_ptr->getJoint(GRIP)->followTheStick(gripVal);
+	} else {
+		gripVal = (xbox_ptr->getTriggerValue(R2) - xbox_ptr->getTriggerValue(L2))* 128;
+		arm_ptr->getJoint(GRIP)->useStick(gripVal);
+	}
+
 
 }
 
