@@ -82,7 +82,7 @@ void rawMode() {
 	int16_t gripVal = 0;
 
 	if (followTrigMode) {
-		gripVal = xbox_ptr->getTriggerValue(R2) * 128;
+		gripVal = (xbox_ptr->getTriggerValue(R2) - 128) * 255;
 		arm_ptr->getJoint(GRIP)->followTheStick(gripVal);
 	} else {
 		gripVal = (xbox_ptr->getTriggerValue(R2) - xbox_ptr->getTriggerValue(L2))* 128;

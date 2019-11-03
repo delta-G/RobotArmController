@@ -56,7 +56,7 @@ void Arm_Class::run() {
 
 	if(newState != state){
 		if(newState == READY){
-			Serial.print("<ARM_READY>");
+//			Serial.print("<ARM_READY>");
 		}
 	}
 
