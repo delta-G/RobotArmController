@@ -77,6 +77,7 @@ void rawMode() {
 
 	if (xbox_ptr->isClicked(X)){
 		followTrigMode = !followTrigMode;
+		arm_ptr->getJoint(GRIP)->stop();
 	}
 
 	int16_t gripVal = 0;
