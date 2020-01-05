@@ -20,7 +20,6 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 #include "RobotArmController.h"
 
-//char inputBuffer[MAX_COMMAND_LENGTH];
 uint8_t index = 0;
 boolean receiving = false;
 
