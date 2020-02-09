@@ -184,13 +184,13 @@ void controlCodes(char* p){
 	case 'M':    // set mode (D, A, M = Drive, Arm, Mine)
 		if (p[2] == 'D') {
 			currentDriveMode = DRIVE;
-			Serial.print("<DRIVE_MODE>");
+//			Serial.print("<DRIVE_MODE>");
 		} else if (p[2] == 'A') {
 			currentDriveMode = ARM;
-			Serial.print("<ARM_MODE>");
+//			Serial.print("<ARM_MODE>");
 		} else if (p[2] == 'M') {
 			currentDriveMode = MINE;
-			Serial.print("<MINE_MODE>");
+//			Serial.print("<MINE_MODE>");
 		}
 		break;
 
