@@ -191,6 +191,9 @@ void controlCodes(char* p){
 		} else if (p[2] == 'M') {
 			currentDriveMode = MINE;
 //			Serial.print("<MINE_MODE>");
+		} else if (p[2] == 'T') {
+			currentDriveMode = AUTO;
+//			Serial.print("<MINE_MODE>");
 		}
 		break;
 
