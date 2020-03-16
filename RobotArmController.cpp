@@ -36,7 +36,7 @@ XboxHandler xbox;
 StreamParser parser(&Serial, START_OF_PACKET, END_OF_PACKET, parseCommand);
 extern CommandParser cp;
 
-//  Joint (name, pin, starting pos, length, min us, min angle, max us, max angle)
+//  Joint (pin, starting pos, length, min us, min angle, max us, max angle)
 Joint joints[NUMBER_OF_JOINTS] = {
 		Joint(4, 1500, 37, 544, -0.34907, 2400, 3.31613),
 		Joint(5, 1270, 105, 544, -0.087266, 2400, 2.91470),

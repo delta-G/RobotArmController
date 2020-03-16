@@ -47,11 +47,34 @@ Command commands[] = {
 		{ 'J', useStick },
 		{ 'F', followStick },
 		{ 'C', controlCodes },
+		{ 'G', gimbalCommand },
 		{ '#', moveToPosition }
 };
 
 
 CommandParser cp(&commands[0], NUM_ELEMENTS(commands), false);
+
+void gimbalCommand(char *p) {
+	switch (p[1]) {
+	case 'C':
+		if (p[2] == 'T') {
+			int targ = atoi((const char*) (p + 3));
+			gimbal.setCenter(gimbal.getCenterPan(), targ);
+		} else if (p[2] == 'P') {
+			int targ = atoi((const char*) (p + 3));
+			gimbal.setCenter(targ, gimbal.getCenterTilt());
+		} else {
+			gimbal.setCenter();
+		}
+		break;
+	case 'c':
+		gimbal.gotoCenter();
+		break;
+	default:
+		break;
+
+	}
+}
 
 void xboxCommand(char* p){
 	xbox.handleIncomingASCII(p+1);
@@ -327,10 +350,10 @@ void followStick(char *p) {
 		arm.getJoint(jointIndex)->followTheStick(stickPos);
 	}
 	else if(jointIndex == arm.getNumJoints()){
-		gimbal.getPanJoint()->followTheStick(stickPos);
+		gimbal.getPanJoint()->followTheStick(stickPos, gimbal.getCenterPan());
 	}
 	else if(jointIndex == arm.getNumJoints() +1){
-		gimbal.getTiltJoint()->followTheStick(stickPos);
+		gimbal.getTiltJoint()->followTheStick(stickPos, gimbal.getCenterTilt());
 	}
 }
 

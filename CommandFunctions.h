@@ -44,6 +44,8 @@ void advanceJoint(char *p);
 void controlCodes(char* p);
 void moveToPosition(char* p);
 
+void gimbalCommand(char* p);
+
 void xboxCommand(char* p);
 void xboxCommandRaw(char*);
 
