@@ -191,6 +191,25 @@ void requestFromArm(char *p) {
 		}
 		break;
 	}
+	case 'c': {
+		uint8_t numBytes = 76;
+		uint8_t rawBuf[numBytes];
+		rawBuf[0] = '<';
+		rawBuf[1] = 0x12;
+		rawBuf[2] = numBytes;
+		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+			ServoCalibrationStruct cs = arm.getJoint(i)->getCalibrationStruct();
+			memcpy(rawBuf + (12 * i) + 3, &(cs.minimumAngle), 4);
+			memcpy(rawBuf + (12 * i) + 7, &(cs.maximumAngle), 4);
+			memcpy(rawBuf + (12 * i) + 11, &(cs.minimumMicros), 2);
+			memcpy(rawBuf + (12 * i) + 13, &(cs.maximumMicros), 2);
+		}
+		rawBuf[75] = '>';
+		for (uint8_t i = 0; i < numBytes; i++) {
+			Serial.write(rawBuf[i]);
+		}
+		break;
+	}
 	}
 
 }
