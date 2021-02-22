@@ -101,7 +101,14 @@ void setJointIndex(char* p){
 	jointIndex = atoi((const char*) (p + 1));
 }
 
+
+
+
 void requestFromArm(char *p) {
+	static uint8_t lastPositionReport[22] = "";
+	static uint8_t lastTargetReport[22] = "";
+	static uint8_t lastSpeedeport[22] = "";
+
 	switch (p[1]) {
 	case 'G': {
 			char gitbuf[9];
@@ -134,8 +141,12 @@ void requestFromArm(char *p) {
 		rawBuf[20] = tilt & 0xFF;
 
 		rawBuf[21] = '>';
-		for(int i=0; i<22; i++){
-			Serial.write(rawBuf[i]);
+		if (memcmp(rawBuf, lastPositionReport, 22)) {
+			for (int i = 0; i < 22; i++) {
+				Serial.write(rawBuf[i]);
+			}
+		} else {
+			Serial.print(ARM_NO_NEW_DATA);
 		}
 		break;
 	}
@@ -160,8 +171,12 @@ void requestFromArm(char *p) {
 		rawBuf[19] = tilt >> 8;
 		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		for (int i=0; i<22; i++){
-			Serial.write(rawBuf[i]);
+		if (memcmp(rawBuf, lastPositionReport, 22)) {
+			for (int i = 0; i < 22; i++) {
+				Serial.write(rawBuf[i]);
+			}
+		} else {
+			Serial.print(ARM_NO_NEW_DATA);
 		}
 		break;
 	}
@@ -186,8 +201,12 @@ void requestFromArm(char *p) {
 		rawBuf[19] = tilt >> 8;
 		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		for (int i = 0; i < 22; i++) {
-			Serial.write(rawBuf[i]);
+		if (memcmp(rawBuf, lastPositionReport, 22)) {
+			for (int i = 0; i < 22; i++) {
+				Serial.write(rawBuf[i]);
+			}
+		} else {
+			Serial.print(ARM_NO_NEW_DATA);
 		}
 		break;
 	}
