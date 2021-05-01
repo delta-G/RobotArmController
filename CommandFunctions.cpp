@@ -107,7 +107,9 @@ void setJointIndex(char* p){
 void requestFromArm(char *p) {
 	static uint8_t lastPositionReport[22] = "";
 	static uint8_t lastTargetReport[22] = "";
-	static uint8_t lastSpeedeport[22] = "";
+	static uint8_t lastSpeedReport[22] = "";
+
+	boolean fallingThrough = false;
 
 	switch (p[1]) {
 	case 'G': {
@@ -120,36 +122,11 @@ void requestFromArm(char *p) {
 			break;
 		}
 
-	case 'p': {
-		uint8_t rawBuf[22];
-		rawBuf[0] = '<';
-		rawBuf[1] = 0x12;
-		rawBuf[2] = 22;
-		rawBuf[3] = arm.getStatusByte();
-		rawBuf[4] = 'p';
-		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-
-			rawBuf[(2 * i) + 5] = (byte)((arm.getJoint(i)->getPosition()) >> 8) & 0xFF;
-			rawBuf[(2 * i) + 6] = (byte)(arm.getJoint(i)->getPosition()) & 0xFF;
-
-		}
-		uint16_t pan = gimbal.getPanJoint()->getPosition();
-		uint16_t tilt = gimbal.getTiltJoint()->getPosition();
-		rawBuf[17] = pan >> 8;
-		rawBuf[18] = pan & 0xFF;
-		rawBuf[19] = tilt >> 8;
-		rawBuf[20] = tilt & 0xFF;
-
-		rawBuf[21] = '>';
-		if (memcmp(rawBuf, lastPositionReport, 22)) {
-			for (int i = 0; i < 22; i++) {
-				Serial.write(rawBuf[i]);
-			}
-		} else {
-			Serial.print(ARM_NO_NEW_DATA);
-		}
-		break;
+	case 'R': {
+		fallingThrough = true;
 	}
+	/* no break */
+
 	case 't':{
 		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
@@ -171,15 +148,18 @@ void requestFromArm(char *p) {
 		rawBuf[19] = tilt >> 8;
 		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		if (memcmp(rawBuf, lastPositionReport, 22)) {
+		if (memcmp(lastTargetReport, rawBuf, 22)) {
+			memcpy(lastTargetReport, rawBuf, 22);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}
-		} else {
-			Serial.print(ARM_NO_NEW_DATA);
+			fallingThrough = false;
 		}
-		break;
+		if (!fallingThrough) {
+			break;
+		}
 	}
+	/* no break */
 	case 's':{
 		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
@@ -201,11 +181,50 @@ void requestFromArm(char *p) {
 		rawBuf[19] = tilt >> 8;
 		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		if (memcmp(rawBuf, lastPositionReport, 22)) {
+		if (memcmp(lastSpeedReport, rawBuf, 22)) {
+			memcpy(lastSpeedReport, rawBuf, 22);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}
-		} else {
+			fallingThrough = false;
+		}
+		if (!fallingThrough) {
+			break;
+		}
+	}
+	/* no break */
+	case 'p': {
+		uint8_t rawBuf[22];
+		rawBuf[0] = '<';
+		rawBuf[1] = 0x12;
+		rawBuf[2] = 22;
+		rawBuf[3] = arm.getStatusByte();
+		rawBuf[4] = 'p';
+		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+
+			rawBuf[(2 * i) + 5] = (byte) ((arm.getJoint(i)->getPosition()) >> 8)
+					& 0xFF;
+			rawBuf[(2 * i) + 6] = (byte) (arm.getJoint(i)->getPosition())
+					& 0xFF;
+
+		}
+		uint16_t pan = gimbal.getPanJoint()->getPosition();
+		uint16_t tilt = gimbal.getTiltJoint()->getPosition();
+		rawBuf[17] = pan >> 8;
+		rawBuf[18] = pan & 0xFF;
+		rawBuf[19] = tilt >> 8;
+		rawBuf[20] = tilt & 0xFF;
+
+		rawBuf[21] = '>';
+		if (memcmp(lastPositionReport, rawBuf, 22)) {
+			memcpy(lastPositionReport, rawBuf, 22);
+			for (int i = 0; i < 22; i++) {
+				Serial.write(rawBuf[i]);
+			}
+			fallingThrough = false;
+		}
+		// Selection was R and we fell through to here with no data
+		if (fallingThrough) {
 			Serial.print(ARM_NO_NEW_DATA);
 		}
 		break;
