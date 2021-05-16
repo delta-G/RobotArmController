@@ -29,6 +29,7 @@ extern GimbalClass gimbal;
 extern XboxHandler xbox;
 
 extern DriveModeEnum currentDriveMode;
+extern Arm_Class arm;
 
 int jointIndex = -1;
 
@@ -48,11 +49,52 @@ Command commands[] = {
 		{ 'F', followStick },
 		{ 'C', controlCodes },
 		{ 'G', gimbalCommand },
+		{ 'K', kinTester },
 		{ '#', moveToPosition }
 };
 
 
 CommandParser cp(&commands[0], NUM_ELEMENTS(commands), false);
+
+void kinTester(char* p) {
+	char* delims = ":";
+	char* s = strtok(p+1, delims);
+	int16_t x = atoi(s);
+	s = strtok(NULL, delims);
+	int16_t y = atoi(s);
+	s = strtok(NULL, delims);
+	int16_t z = atoi(s);
+	s = strtok(NULL, delims);
+	float phi = atof(s);
+	s = strtok(NULL, delims);
+	int tol = atoi(s);
+
+	float jointArray[4];
+	boolean kinret = runInverse(jointArray, x, y, z, phi, tol);
+	if(kinret){
+		Serial.println(F("True: Good Job"));
+		Serial.print("{ ");
+		Serial.print(jointArray[0]);
+		Serial.print(",");
+		Serial.print(jointArray[1]);
+		Serial.print(",");
+		Serial.print(jointArray[2]);
+		Serial.print(",");
+		Serial.print(jointArray[3]);
+		Serial.print(" }");
+	} else {
+		Serial.println(F("False: Fail"));
+		Serial.print("{ ");
+		Serial.print(jointArray[0]);
+		Serial.print(",");
+		Serial.print(jointArray[1]);
+		Serial.print(",");
+		Serial.print(jointArray[2]);
+		Serial.print(",");
+		Serial.print(jointArray[3]);
+		Serial.print(" }");
+	}
+}
 
 void gimbalCommand(char *p) {
 	switch (p[1]) {

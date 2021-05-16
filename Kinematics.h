@@ -18,41 +18,29 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
      */
 
-#ifndef COMMANDFUNCTIONS_H_
-#define COMMANDFUNCTIONS_H_
+#ifndef KINEMATICS_H_
+#define KINEMATICS_H_
 
-#include <Arduino.h>
-#include <CommandParser.h>
-#include <XboxHandler.h>
 
-#include "Defines.h"
+
+#include "Arduino.h"
 #include "ArmClass.h"
-#include "Gimbal.h"
-#include "Joint.h"
-#include "Kinematics.h"
 
-#include "githash.h"
+struct PositionStruct{
 
-void startCommands(char* p);
-void setJointIndex(char* p);
-void requestFromArm(char *p);
-void bootResponse(char* p);
-void setTarget(char* p);
-void setAngle(char* p);
-void setSpeed(char* p);
-void useStick(char *p);
-void followStick(char *p);
-void advanceJoint(char *p);
-void controlCodes(char* p);
-void moveToPosition(char* p);
+	int16_t x;
+	int16_t y;
+	int16_t z;
+	float phi;
 
-void gimbalCommand(char* p);
-void kinTester(char* p);
+	PositionStruct(int16_t aX, int16_t aY, int16_t aZ, float aPhi):x(aX), y(aY), z(aZ), phi(aPhi){}
 
-void xboxCommand(char* p);
-void xboxCommandRaw(char*);
+	boolean compare(PositionStruct other, uint16_t tolerance);
+};
+
+boolean runInverse(float *aReturnArray, int16_t aX, int16_t aY, int16_t aZ, float aPhi, uint16_t aTolerance);
+PositionStruct forwardK1(float baseAngle, float shoulderAngle, float elbowAngle, float wristAngle);
+void inverseK1(float *aReturnArray, int16_t aX, int16_t aY, int16_t aZ, float aPhi);
 
 
-
-
-#endif /* COMMANDFUNCTIONS_H_ */
+#endif /* KINEMATICS_H_ */
