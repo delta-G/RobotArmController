@@ -27,8 +27,8 @@ Arm_Class* arm_ptr;
 extern DriveModeEnum currentDriveMode;
 
 boolean invertWrist = true;
-boolean invertElbow = false;
-boolean invertShoulder = false;
+boolean invertElbow = true;
+boolean invertShoulder = true;
 
 
 void initControllerFunctions(Arm_Class* aArm, XboxHandler* aXbox){

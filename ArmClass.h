@@ -90,19 +90,19 @@ public:
 	int gotoPosition(int);
 	int loadMovement(int);
 
-	XYandAngle findEndEffector();
+//	XYandAngle findEndEffector();
 
-	ArmPositionStruct currentPositions;
-	boolean positionValid;
-	void invalidatePosition();
-	void findPosition();
+//	ArmPositionStruct currentPositions;
+//	boolean positionValid;
+//	void invalidatePosition();
+//	void findPosition();
 
 	uint8_t getStatusByte();
 
-	ArmPositionStruct jointSpaceToPosition(JointSpaceStruct);
-
-
-	JointSpaceStruct gripperPositionToJointSpace(SpacePoint, float);
+//	ArmPositionStruct jointSpaceToPosition(JointSpaceStruct);
+//
+//
+//	JointSpaceStruct gripperPositionToJointSpace(SpacePoint, float);
 
 };
 

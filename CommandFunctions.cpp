@@ -57,43 +57,43 @@ Command commands[] = {
 CommandParser cp(&commands[0], NUM_ELEMENTS(commands), false);
 
 void kinTester(char* p) {
-	char* delims = ":";
-	char* s = strtok(p+1, delims);
-	int16_t x = atoi(s);
-	s = strtok(NULL, delims);
-	int16_t y = atoi(s);
-	s = strtok(NULL, delims);
-	int16_t z = atoi(s);
-	s = strtok(NULL, delims);
-	float phi = atof(s);
-	s = strtok(NULL, delims);
-	int tol = atoi(s);
-
-	float jointArray[4];
-	boolean kinret = runInverse(jointArray, x, y, z, phi, tol);
-	if(kinret){
-		Serial.println(F("True: Good Job"));
-		Serial.print("{ ");
-		Serial.print(jointArray[0]);
-		Serial.print(",");
-		Serial.print(jointArray[1]);
-		Serial.print(",");
-		Serial.print(jointArray[2]);
-		Serial.print(",");
-		Serial.print(jointArray[3]);
-		Serial.print(" }");
-	} else {
-		Serial.println(F("False: Fail"));
-		Serial.print("{ ");
-		Serial.print(jointArray[0]);
-		Serial.print(",");
-		Serial.print(jointArray[1]);
-		Serial.print(",");
-		Serial.print(jointArray[2]);
-		Serial.print(",");
-		Serial.print(jointArray[3]);
-		Serial.print(" }");
-	}
+//	char* delims = ":";
+//	char* s = strtok(p+1, delims);
+//	int16_t x = atoi(s);
+//	s = strtok(NULL, delims);
+//	int16_t y = atoi(s);
+//	s = strtok(NULL, delims);
+//	int16_t z = atoi(s);
+//	s = strtok(NULL, delims);
+//	float phi = atof(s);
+//	s = strtok(NULL, delims);
+//	int tol = atoi(s);
+//
+//	float jointArray[4];
+//	boolean kinret = runInverse(jointArray, x, y, z, phi, tol);
+//	if(kinret){
+//		Serial.println(F("True: Good Job"));
+//		Serial.print(F("{ "));
+//		Serial.print(jointArray[0]);
+//		Serial.print(F(","));
+//		Serial.print(jointArray[1]);
+//		Serial.print(F(","));
+//		Serial.print(jointArray[2]);
+//		Serial.print(F(","));
+//		Serial.print(jointArray[3]);
+//		Serial.print(F(" }"));
+//	} else {
+//		Serial.println(F("False: Fail"));
+//		Serial.print(F("{ "));
+//		Serial.print(jointArray[0]);
+//		Serial.print(F(","));
+//		Serial.print(jointArray[1]);
+//		Serial.print(F(","));
+//		Serial.print(jointArray[2]);
+//		Serial.print(F(","));
+//		Serial.print(jointArray[3]);
+//		Serial.print(F(" }"));
+//	}
 }
 
 void gimbalCommand(char *p) {
@@ -147,9 +147,9 @@ void setJointIndex(char* p){
 
 
 void requestFromArm(char *p) {
-	static uint8_t lastPositionReport[22] = "";
-	static uint8_t lastTargetReport[22] = "";
-	static uint8_t lastSpeedReport[22] = "";
+	static uint8_t lastPositionReport[ARM_DUMP_SIZE-6] = "";
+	static uint8_t lastTargetReport[ARM_DUMP_SIZE-6] = "";
+	static uint8_t lastSpeedReport[ARM_DUMP_SIZE-6] = "";
 
 	boolean fallingThrough = false;
 
@@ -158,9 +158,9 @@ void requestFromArm(char *p) {
 			char gitbuf[9];
 			strncpy(gitbuf, GIT_HASH, 8);
 			gitbuf[8] = 0;
-			Serial.print("<ARMGIT-");
+			Serial.print(F("<ARMGIT-"));
 			Serial.print(gitbuf);
-			Serial.print(">");
+			Serial.print(F(">"));
 			break;
 		}
 
@@ -190,8 +190,8 @@ void requestFromArm(char *p) {
 		rawBuf[19] = tilt >> 8;
 		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		if (memcmp(lastTargetReport, rawBuf, 22)) {
-			memcpy(lastTargetReport, rawBuf, 22);
+		if (memcmp(lastTargetReport, rawBuf+5, 16)) {
+			memcpy(lastTargetReport, rawBuf+5, 16);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}
@@ -223,8 +223,8 @@ void requestFromArm(char *p) {
 		rawBuf[19] = tilt >> 8;
 		rawBuf[20] = tilt & 0xFF;
 		rawBuf[21] = '>';
-		if (memcmp(lastSpeedReport, rawBuf, 22)) {
-			memcpy(lastSpeedReport, rawBuf, 22);
+		if (memcmp(lastSpeedReport, rawBuf+5, 16)) {
+			memcpy(lastSpeedReport, rawBuf+5, 16);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}
@@ -258,8 +258,8 @@ void requestFromArm(char *p) {
 		rawBuf[20] = tilt & 0xFF;
 
 		rawBuf[21] = '>';
-		if (memcmp(lastPositionReport, rawBuf, 22)) {
-			memcpy(lastPositionReport, rawBuf, 22);
+		if (memcmp(lastPositionReport, rawBuf+5, 16)) {
+			memcpy(lastPositionReport, rawBuf+5, 16);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}

@@ -72,7 +72,7 @@ Arm_Class::Arm_Class(){
 
 	joints = 0;
 	numJoints = 8;
-	positionValid = false;
+//	positionValid = false;
 	servoPower = false;
 
 }
@@ -80,7 +80,7 @@ Arm_Class::Arm_Class(){
 Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 	joints = aJoints;
 	numJoints = aNum;
-	positionValid = false;
+//	positionValid = false;
 	servoPower = false;
 }
 
@@ -259,7 +259,7 @@ int Arm_Class::loadCalibrations() {
 }
 
 
-
+/*
 
 XYandAngle Arm_Class::findEndEffector(){
 
@@ -380,7 +380,7 @@ ArmPositionStruct Arm_Class::jointSpaceToPosition(JointSpaceStruct aPos) {
 	return retval;
 
 }
-
+*/
 
 /*
  *
@@ -455,6 +455,8 @@ ArmPositionStruct Arm_Class::jointSpaceToPosition(JointSpaceStruct aPos) {
 //	retval.y = sin(aAngle) * aLength;
 //	return retval;
 //}
+
+/*
 
 JointSpaceStruct Arm_Class::gripperPositionToJointSpace(SpacePoint xyz, float wristAngle) {
 
@@ -580,3 +582,5 @@ JointSpaceStruct Arm_Class::gripperPositionToJointSpace(SpacePoint xyz, float wr
 	return retval;
 
 }
+
+*/

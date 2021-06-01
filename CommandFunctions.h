@@ -22,6 +22,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #define COMMANDFUNCTIONS_H_
 
 #include <Arduino.h>
+#define COM_PARSER_MAX_COMMAND_LENGTH 32
 #include <CommandParser.h>
 #include <XboxHandler.h>
 

@@ -89,7 +89,7 @@ void setup() {
 
 	if(!eepromGood()){
 		heartbeatDelay = 100;
-		Serial.print(ARM_BAD_EEPROM);
+		Serial.print(F(ARM_BAD_EEPROM));
 	}
 
 	initControllerFunctions(&arm, &xbox);
@@ -102,7 +102,7 @@ void setup() {
 
 	parser.setRawCallback(rawDataCallback);
 
-	Serial.print(ARM_INIT_COMPLETE);
+	Serial.print(F(ARM_INIT_COMPLETE));
 
 }
 

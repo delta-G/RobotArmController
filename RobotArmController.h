@@ -28,6 +28,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 
 
 #include <Servo.h>
+#define STREAMPARSER_BUFFER_SIZE 32
 #include <StreamParser.h>
 #include <EepromFuncs.h>
 
