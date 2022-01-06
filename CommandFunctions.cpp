@@ -330,6 +330,11 @@ void controlCodes(char* p){
 		arm.setServoPower(false);
 		delay(10);
 		break;
+	case 'Q':
+		// Park Arm
+		arm.gotoPosition(EEPROM_POSITION_SITTING);
+		arm.setCallback(parkArm);
+		break;
 	}
 
 }
@@ -429,4 +434,61 @@ void moveToPosition(char *p) {
 }
 
 
+boolean parkArm(){
+
+	///  Must start from sitting scorpion position
+	//  Call that first then set this as movementDoneCallback
+//	Serial.print("<PARKING>");
+	if(arm.getJoint(ELBOW)->getPosition() == 2400){
+//		Serial.print("<PARKING1>");
+		if(!(gimbal.getTiltJoint()->getPosition() == 700)){
+//			Serial.print("<PARKING1-1>");
+			gimbal.getTiltJoint()->setTarget(700, 500);
+			return false;
+		}
+		if(!(arm.getJoint(ROTATE)->getPosition() == 700)){
+//			Serial.print("<PARKING1-2>");
+			arm.getJoint(ROTATE)->setTarget(700,500);
+			return false;
+		}
+		if(!(arm.getJoint(BASE)->getPosition() == 1340)){
+//			Serial.print("<PARKING1-3>");
+			arm.getJoint(BASE)->setTarget(1340, 300);
+			arm.getJoint(WRIST)->setTarget(1250, 350);
+			return false;
+		}
+		if(!(arm.getJoint(WRIST)->getPosition() == 1250)){
+//			Serial.print("<PARKING1-3a>");
+			arm.getJoint(WRIST)->setTarget(1250, 350);
+			return false;
+		}
+//		Serial.print("<PARKING1-END>");
+		arm.getJoint(ELBOW)->setTarget(1800, 200);
+		arm.getJoint(SHOULDER)->setTarget(1600, 200);
+		return false;
+	}
+	if(arm.getJoint(ELBOW)->getPosition() == 1800) {
+//		Serial.print("<PARKING2>");
+		arm.getJoint(ELBOW)->setTarget(1950, 100);
+		arm.getJoint(SHOULDER)->setTarget(1350, 100);
+		return false;
+	}
+	if(arm.getJoint(SHOULDER)->getPosition() == 1350){
+//		Serial.print("<PARKING3>");
+		arm.getJoint(SHOULDER)->setTarget(1250, 50);
+		return false;
+	}
+	if(arm.getJoint(SHOULDER)->getPosition() == 1250){
+//		Serial.print("<PARKING - DETACH>");
+		arm.detachAll();
+		gimbal.detach();
+		delay(10);
+		arm.setServoPower(false);
+		delay(10);
+		return true;
+	}
+	Serial.print("<PARK FAILED>");
+	arm.gotoPosition(EEPROM_POSITION_SITTING);
+	return false;
+}
 

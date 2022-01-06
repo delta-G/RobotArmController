@@ -24,6 +24,8 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "Arduino.h"
 #include "Defines.h"
 #include <Joint.h>
+#include <Gimbal.h>
+
 #include "SpacePoint.h"
 
 #include <EepromFuncs.h>
@@ -48,6 +50,7 @@ struct JointSpaceStruct {
 
 };
 
+enum State_Enum {READY, MOVING};
 
 class Arm_Class {
 
@@ -61,6 +64,8 @@ private:
 
 
 public:
+
+	State_Enum state;
 
 	Arm_Class();
 	Arm_Class(Joint*, int);
@@ -76,6 +81,11 @@ public:
 	void run();
 	void stop();
 	boolean isMoving();
+
+	boolean (*movementDoneCallback)();
+
+//	boolean *(movementDoneCallback)();
+	void setCallback(boolean (*aCallback)());
 
 	int savePosition(int);
 //	int readPosition(int);

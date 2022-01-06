@@ -49,6 +49,7 @@ void gimbalCommand(char* p);
 void xboxCommand(char* p);
 void xboxCommandRaw(char*);
 
+boolean parkArm();
 
 
 

@@ -21,9 +21,7 @@ RobotArmController  --  runs onArduino Nano and handles the Arm for my robot
 #include "ArmClass.h"
 
 //#define NUMBER_OF_JOINTS 8
-
-
-enum State_Enum {READY, MOVING} state;
+extern GimbalClass gimbal;
 
 void Arm_Class::run() {
 
@@ -40,6 +38,9 @@ void Arm_Class::run() {
 				newState = MOVING;
 			}
 		}
+		if(gimbal.isMoving()){
+			newState = MOVING;
+		}
 		break;
 	case MOVING:
 		boolean done = true;
@@ -48,15 +49,24 @@ void Arm_Class::run() {
 				done = false;
 			}
 		}
+		if(gimbal.isMoving()){
+			done = false;
+		}
 		if (done) {
 			newState = READY;
 		}
 		break;
 	}  // end switch
 
-	if(newState != state){
-		if(newState == READY){
-//			Serial.print("<ARM_READY>");
+	if (newState != state) {
+		if (newState == READY) {
+			if (movementDoneCallback != NULL) {
+				if (movementDoneCallback()) {
+					// callbacks should return true when they are done being called
+					// each time state goes back to ready
+					movementDoneCallback = NULL;
+				}
+			}
 		}
 	}
 
@@ -65,7 +75,9 @@ void Arm_Class::run() {
 
 }
 
-
+void Arm_Class::setCallback(boolean (*aCallback)()){
+	movementDoneCallback = aCallback;
+}
 
 
 Arm_Class::Arm_Class(){
@@ -74,6 +86,7 @@ Arm_Class::Arm_Class(){
 	numJoints = 8;
 	positionValid = false;
 	servoPower = false;
+	movementDoneCallback = NULL;
 
 }
 
@@ -82,6 +95,7 @@ Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 	numJoints = aNum;
 	positionValid = false;
 	servoPower = false;
+	movementDoneCallback = NULL;
 }
 
 uint8_t Arm_Class::getStatusByte(){
