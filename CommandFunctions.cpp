@@ -332,8 +332,8 @@ void controlCodes(char* p){
 		break;
 	case 'Q':
 		// Park Arm
-		arm.gotoPosition(EEPROM_POSITION_SITTING);
 		arm.setCallback(parkArm);
+		arm.gotoPosition(EEPROM_POSITION_SITTING);
 		break;
 	}
 

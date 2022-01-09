@@ -33,33 +33,16 @@ void Arm_Class::run() {
 
 	switch (state) {
 	case READY:
-		for (int i = 0; i < numJoints; i++) {
-			if (joints[i].isMoving()) {
-				newState = MOVING;
-			}
+		if(isMoving()){
+			newState = MOVING;
 		}
 		if(gimbal.isMoving()){
 			newState = MOVING;
 		}
 		break;
 	case MOVING:
-		boolean done = true;
-		for (int i = 0; i < numJoints; i++) {
-			if (joints[i].isMoving()) {
-				done = false;
-			}
-		}
-		if(gimbal.isMoving()){
-			done = false;
-		}
-		if (done) {
+		if(!(isMoving() || gimbal.isMoving())){
 			newState = READY;
-		}
-		break;
-	}  // end switch
-
-	if (newState != state) {
-		if (newState == READY) {
 			if (movementDoneCallback != NULL) {
 				if (movementDoneCallback()) {
 					// callbacks should return true when they are done being called
@@ -68,10 +51,10 @@ void Arm_Class::run() {
 				}
 			}
 		}
-	}
+		break;
+	}  // end switch
 
 	state = newState;
-
 
 }
 
@@ -87,6 +70,7 @@ Arm_Class::Arm_Class(){
 	positionValid = false;
 	servoPower = false;
 	movementDoneCallback = NULL;
+	state = READY;
 
 }
 
@@ -96,12 +80,19 @@ Arm_Class::Arm_Class(Joint* aJoints, int aNum){
 	positionValid = false;
 	servoPower = false;
 	movementDoneCallback = NULL;
+	state = READY;
 }
 
 uint8_t Arm_Class::getStatusByte(){
 	uint8_t retval = 0;
 	if(servoPower){
 		retval |= 0x01;
+	}
+	if(isMoving()){
+		retval |= 0x02;
+	}
+	if(gimbal.isMoving()){
+		retval |= 0x04;
 	}
 	return retval;
 }
@@ -191,6 +182,7 @@ int Arm_Class::gotoPosition(int aAddress){
 		offset += readFromEEPROM(add + offset, t);
 		joints[i].setTarget(t);
 	}
+	state = MOVING;
 	return offset;
 }
 
