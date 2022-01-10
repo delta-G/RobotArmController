@@ -30,25 +30,30 @@ void Arm_Class::run() {
 	}
 
 	State_Enum newState = state;
+	boolean newMoving = (isMoving() || gimbal.isMoving());
 
 	switch (state) {
 	case READY:
-		if(isMoving()){
+		if(newMoving){
 			newState = MOVING;
-		}
-		if(gimbal.isMoving()){
-			newState = MOVING;
+//			Serial.print(ARM_MOVING);
 		}
 		break;
 	case MOVING:
-		if(!(isMoving() || gimbal.isMoving())){
-			newState = READY;
+		if(!newMoving){
 			if (movementDoneCallback != NULL) {
 				if (movementDoneCallback()) {
 					// callbacks should return true when they are done being called
 					// each time state goes back to ready
 					movementDoneCallback = NULL;
+					newState = READY;
+					Serial.print(ARM_MOVEMENT_DONE);
+//					Serial.print(ARM_READY);
 				}
+			} else {
+				// no callback, if still then READY
+				newState = READY;
+//				Serial.print(ARM_READY);
 			}
 		}
 		break;
