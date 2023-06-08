@@ -454,12 +454,12 @@ boolean parkArm(){
 		if(!(arm.getJoint(BASE)->getPosition() == 1340)){
 //			Serial.print("<PARKING1-3>");
 			arm.getJoint(BASE)->setTarget(1340, 300);
-			arm.getJoint(WRIST)->setTarget(1250, 350);
+			arm.getJoint(WRIST)->setTarget(1200, 350);
 			return false;
 		}
-		if(!(arm.getJoint(WRIST)->getPosition() == 1250)){
+		if(!(arm.getJoint(WRIST)->getPosition() == 1200)){
 //			Serial.print("<PARKING1-3a>");
-			arm.getJoint(WRIST)->setTarget(1250, 350);
+			arm.getJoint(WRIST)->setTarget(1200, 350);
 			return false;
 		}
 //		Serial.print("<PARKING1-END>");
@@ -469,7 +469,7 @@ boolean parkArm(){
 	}
 	if(arm.getJoint(ELBOW)->getPosition() == 1800) {
 //		Serial.print("<PARKING2>");
-		arm.getJoint(ELBOW)->setTarget(1950, 100);
+		arm.getJoint(ELBOW)->setTarget(2000, 100);
 		arm.getJoint(SHOULDER)->setTarget(1350, 100);
 		return false;
 	}
@@ -478,7 +478,12 @@ boolean parkArm(){
 		arm.getJoint(SHOULDER)->setTarget(1250, 50);
 		return false;
 	}
-	if(arm.getJoint(SHOULDER)->getPosition() == 1250){
+	if (arm.getJoint(SHOULDER)->getPosition() == 1350) {
+		//		Serial.print("<PARKING4>");
+		arm.getJoint(SHOULDER)->setTarget(1150, 50);
+		return false;
+	}
+	if(arm.getJoint(SHOULDER)->getPosition() == 1150){
 //		Serial.print("<PARKING - DETACH>");
 		arm.detachAll();
 		gimbal.detach();
