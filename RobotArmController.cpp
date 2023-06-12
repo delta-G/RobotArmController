@@ -90,6 +90,8 @@ void setup() {
 	if(!eepromGood()){
 		heartbeatDelay = 100;
 		Serial.print(ARM_BAD_EEPROM);
+	} else {
+		arm.loadAll(EEPROM_INITIAL_STATES_START);  // Loads calibrations and initial joint states.
 	}
 
 	initControllerFunctions(&arm, &xbox);

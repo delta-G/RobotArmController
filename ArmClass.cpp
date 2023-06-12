@@ -151,6 +151,7 @@ void Arm_Class::stop() {
 	for (int i = 0; i < numJoints; i++) {
 			joints[i].stop();
 		}
+	movementDoneCallback = NULL;
 }
 
 boolean Arm_Class::isMoving(){
