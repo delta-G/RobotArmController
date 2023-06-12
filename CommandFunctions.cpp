@@ -471,7 +471,12 @@ boolean parkArm(){
 			gimbal.getTiltJoint()->setTarget(700, 500);
 			return false;
 		}
-		if(!(arm.getJoint(ROTATE)->getPosition() == 700)){
+		if (!(gimbal.getPanJoint()->getPosition() == 1420)) {
+			//			Serial.print("<PARKING1-1>");
+			gimbal.getPanJoint()->setTarget(1420, 500);
+			return false;
+		}
+		if (!(arm.getJoint(ROTATE)->getPosition() == 700)) {
 //			Serial.print("<PARKING1-2>");
 			arm.getJoint(ROTATE)->setTarget(700,500);
 			return false;
