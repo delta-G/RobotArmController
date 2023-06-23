@@ -47,7 +47,7 @@ void Arm_Class::run() {
 					// each time state goes back to ready
 					movementDoneCallback = NULL;
 					newState = READY;
-					Serial.print(ARM_MOVEMENT_DONE);
+					Serial.print(F(ARM_MOVEMENT_DONE));
 //					Serial.print(ARM_READY);
 				}
 			} else {

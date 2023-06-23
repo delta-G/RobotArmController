@@ -104,23 +104,26 @@ void setJointIndex(char* p){
 
 enum reportTypeEnum {SPEED,	TARGET,	POSITION};
 
+
 void requestFromArm(char *p) {
-	static uint8_t lastPositionReport[22] = "";
-	static uint8_t lastTargetReport[22] = "";
-	static uint8_t lastSpeedReport[22] = "";
+	static uint8_t lastPositionReport[16];
+	static uint8_t lastTargetReport[16];
+	static uint8_t lastSpeedReport[16];
 
 	static reportTypeEnum lastReport = POSITION;
 
 	boolean fallingThrough = false;
 
+	uint8_t rawBuf[22];
+
 	switch (p[1]) {
 	case 'G': {
 			char gitbuf[9];
-			strncpy(gitbuf, GIT_HASH, 8);
+			strncpy_P(gitbuf, PSTR(GIT_HASH), 8);
 			gitbuf[8] = 0;
-			Serial.print("<ARMGIT-");
+			Serial.print(F("<ARMGIT-"));
 			Serial.print(gitbuf);
-			Serial.print(">");
+			Serial.print(F(">"));
 			break;
 		}
 
@@ -132,7 +135,7 @@ void requestFromArm(char *p) {
 		//  Speed won't run if it or target was last to prevent it and target from just taking turns
 		//  Speed shouldn't be changing a lot.
 		if (!fallingThrough || (fallingThrough && (lastReport == POSITION))) {
-			uint8_t rawBuf[22];
+//			uint8_t rawBuf[22];
 			rawBuf[0] = '<';
 			rawBuf[1] = 0x12;
 			rawBuf[2] = 22;
@@ -153,8 +156,8 @@ void requestFromArm(char *p) {
 			rawBuf[19] = tilt >> 8;
 			rawBuf[20] = tilt & 0xFF;
 			rawBuf[21] = '>';
-			if (!fallingThrough || (memcmp(lastSpeedReport, rawBuf, 22))) {
-				memcpy(lastSpeedReport, rawBuf, 22);
+			if (!fallingThrough || (memcmp(lastSpeedReport, rawBuf+5, 16))) {
+				memcpy(lastSpeedReport, rawBuf+5, 16);
 				for (int i = 0; i < 22; i++) {
 					Serial.write(rawBuf[i]);
 				}
@@ -171,7 +174,7 @@ void requestFromArm(char *p) {
 	case 't': {
 		// Target will run if it wasn't the last one.
 		if (!fallingThrough || (fallingThrough && (lastReport != TARGET))) {
-			uint8_t rawBuf[22];
+//			uint8_t rawBuf[22];
 			rawBuf[0] = '<';
 			rawBuf[1] = 0x12;
 			rawBuf[2] = 22;
@@ -192,8 +195,8 @@ void requestFromArm(char *p) {
 			rawBuf[19] = tilt >> 8;
 			rawBuf[20] = tilt & 0xFF;
 			rawBuf[21] = '>';
-			if (!fallingThrough || (memcmp(lastTargetReport, rawBuf, 22))) {
-				memcpy(lastTargetReport, rawBuf, 22);
+			if (!fallingThrough || (memcmp(lastTargetReport, rawBuf+5, 16))) {
+				memcpy(lastTargetReport, rawBuf+5, 16);
 				for (int i = 0; i < 22; i++) {
 					Serial.write(rawBuf[i]);
 				}
@@ -208,7 +211,7 @@ void requestFromArm(char *p) {
 		/* no break */
 
 	case 'p': {
-		uint8_t rawBuf[22];
+//		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
 		rawBuf[1] = 0x12;
 		rawBuf[2] = 22;
@@ -230,8 +233,8 @@ void requestFromArm(char *p) {
 		rawBuf[20] = tilt & 0xFF;
 
 		rawBuf[21] = '>';
-		if (!fallingThrough || (memcmp(lastPositionReport, rawBuf, 22))) {
-			memcpy(lastPositionReport, rawBuf, 22);
+		if (!fallingThrough || (memcmp(lastPositionReport, rawBuf+5, 16))) {
+			memcpy(lastPositionReport, rawBuf+5, 16);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}
@@ -240,38 +243,39 @@ void requestFromArm(char *p) {
 		}
 		// Selection was R and we fell through to here with no data
 		if (fallingThrough) {
-			Serial.print(ARM_NO_NEW_DATA);
+			Serial.print(F(ARM_NO_NEW_DATA));
+			Serial.flush();
 			// So we don't get stuck because only targets or speeds are changing
 			lastReport = POSITION;  // The only one that can go twice in a row.
 		}
 		break;
 	}
 
-	case 'c': {
-		uint8_t numBytes = 76;
-		uint8_t rawBuf[numBytes];
-		rawBuf[0] = '<';
-		rawBuf[1] = 0x12;
-		rawBuf[2] = numBytes;
-		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-			ServoCalibrationStruct cs = arm.getJoint(i)->getCalibrationStruct();
-			memcpy(rawBuf + (12 * i) + 3, &(cs.minimumAngle), 4);
-			memcpy(rawBuf + (12 * i) + 7, &(cs.maximumAngle), 4);
-			memcpy(rawBuf + (12 * i) + 11, &(cs.minimumMicros), 2);
-			memcpy(rawBuf + (12 * i) + 13, &(cs.maximumMicros), 2);
-		}
-		rawBuf[75] = '>';
-		for (uint8_t i = 0; i < numBytes; i++) {
-			Serial.write(rawBuf[i]);
-		}
-		break;
-	}
+//	case 'c': {
+//		uint8_t numBytes = 76;
+//		uint8_t rawBuf[numBytes];
+//		rawBuf[0] = '<';
+//		rawBuf[1] = 0x12;
+//		rawBuf[2] = numBytes;
+//		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
+//			ServoCalibrationStruct cs = arm.getJoint(i)->getCalibrationStruct();
+//			memcpy(rawBuf + (12 * i) + 3, &(cs.minimumAngle), 4);
+//			memcpy(rawBuf + (12 * i) + 7, &(cs.maximumAngle), 4);
+//			memcpy(rawBuf + (12 * i) + 11, &(cs.minimumMicros), 2);
+//			memcpy(rawBuf + (12 * i) + 13, &(cs.maximumMicros), 2);
+//		}
+//		rawBuf[75] = '>';
+//		for (uint8_t i = 0; i < numBytes; i++) {
+//			Serial.write(rawBuf[i]);
+//		}
+//		break;
+//	}
 	}
 
 }
 
 void bootResponse(char* p){
-	Serial.print(ARM_CONNECT_RESPONSE);
+	Serial.print(F(ARM_CONNECT_RESPONSE));
 }
 
 void controlCodes(char* p){
@@ -522,7 +526,7 @@ boolean parkArm(){
 		delay(10);
 		return true;
 	}
-	Serial.print("<PARK FAILED>");
+	Serial.print(F("<PARK FAILED>"));
 	arm.gotoPosition(EEPROM_POSITION_SITTING);
 	return false;
 }

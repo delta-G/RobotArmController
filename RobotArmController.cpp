@@ -49,7 +49,7 @@ Joint joints[NUMBER_OF_JOINTS] = {
 };
 
 Arm_Class arm(joints, NUMBER_OF_JOINTS - 2);
-GimbalClass gimbal(&joints[NUMBER_OF_JOINTS - 2], &joints[NUMBER_OF_JOINTS - 1]);
+GimbalClass gimbal(&(joints[NUMBER_OF_JOINTS - 2]), &(joints[NUMBER_OF_JOINTS - 1]));
 
 //  declared in Defines.h for everyone to use.
 boolean eepromGood(){
@@ -92,6 +92,8 @@ void setup() {
 		Serial.print(ARM_BAD_EEPROM);
 	} else {
 		arm.loadAll(EEPROM_INITIAL_STATES_START);  // Loads calibrations and initial joint states.
+
+		gimbal.loadCalibrations(EEPROM_CALIBRATION_START + EEPROM_GIMBAL_CALIBRATION_OFFSET);
 	}
 
 	initControllerFunctions(&arm, &xbox);
@@ -184,9 +186,9 @@ void parseCommand(char *aCommand) {
 
 void programEEPROM(char* aCommand) {
 
-	char inBuf[COM_PARSER_MAX_COMMAND_LENGTH];
-	strncpy(inBuf, aCommand, COM_PARSER_MAX_COMMAND_LENGTH - 1);
-	inBuf[COM_PARSER_MAX_COMMAND_LENGTH - 1] = 0;
+	char inBuf[MAX_COMMAND_LENGTH];
+	strncpy(inBuf, aCommand, MAX_COMMAND_LENGTH - 1);
+	inBuf[MAX_COMMAND_LENGTH - 1] = 0;
 	int address = -1;
 
 	if (inBuf[0] == '<') {

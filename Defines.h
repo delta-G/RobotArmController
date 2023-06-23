@@ -61,7 +61,7 @@ enum JointsE {
 };
 
 
-#define MAX_COMMAND_LENGTH 64
+#define MAX_COMMAND_LENGTH 32
 
 
 #define ARM_MODE_STICK_DEADZONE 1000
