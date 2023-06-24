@@ -106,9 +106,9 @@ enum reportTypeEnum {SPEED,	TARGET,	POSITION};
 
 
 void requestFromArm(char *p) {
-	static uint8_t lastPositionReport[16];
-	static uint8_t lastTargetReport[16];
-	static uint8_t lastSpeedReport[16];
+	static uint8_t lastPositionReport[18];
+	static uint8_t lastTargetReport[18];
+	static uint8_t lastSpeedReport[18];
 
 	static reportTypeEnum lastReport = POSITION;
 
@@ -156,8 +156,8 @@ void requestFromArm(char *p) {
 			rawBuf[19] = tilt >> 8;
 			rawBuf[20] = tilt & 0xFF;
 			rawBuf[21] = '>';
-			if (!fallingThrough || (memcmp(lastSpeedReport, rawBuf+5, 16))) {
-				memcpy(lastSpeedReport, rawBuf+5, 16);
+			if (!fallingThrough || (memcmp(lastSpeedReport, rawBuf+3, 18))) {
+				memcpy(lastSpeedReport, rawBuf+3, 18);
 				for (int i = 0; i < 22; i++) {
 					Serial.write(rawBuf[i]);
 				}
@@ -195,8 +195,8 @@ void requestFromArm(char *p) {
 			rawBuf[19] = tilt >> 8;
 			rawBuf[20] = tilt & 0xFF;
 			rawBuf[21] = '>';
-			if (!fallingThrough || (memcmp(lastTargetReport, rawBuf+5, 16))) {
-				memcpy(lastTargetReport, rawBuf+5, 16);
+			if (!fallingThrough || (memcmp(lastTargetReport, rawBuf+3, 18))) {
+				memcpy(lastTargetReport, rawBuf+3, 18);
 				for (int i = 0; i < 22; i++) {
 					Serial.write(rawBuf[i]);
 				}
@@ -233,8 +233,8 @@ void requestFromArm(char *p) {
 		rawBuf[20] = tilt & 0xFF;
 
 		rawBuf[21] = '>';
-		if (!fallingThrough || (memcmp(lastPositionReport, rawBuf+5, 16))) {
-			memcpy(lastPositionReport, rawBuf+5, 16);
+		if (!fallingThrough || (memcmp(lastPositionReport, rawBuf+3, 18))) {
+			memcpy(lastPositionReport, rawBuf+3, 18);
 			for (int i = 0; i < 22; i++) {
 				Serial.write(rawBuf[i]);
 			}
