@@ -112,9 +112,9 @@ void requestFromArm(char *p) {
 
 	static reportTypeEnum lastReport = POSITION;
 
-	boolean fallingThrough = false;
+	static boolean sendingCalibrations = false;
 
-	uint8_t rawBuf[22];
+	boolean fallingThrough = false;
 
 	switch (p[1]) {
 	case 'G': {
@@ -128,14 +128,32 @@ void requestFromArm(char *p) {
 		}
 
 	case 'R': {
-		fallingThrough = true;
+		// if this flag is set then regular report will
+		// cycle through the joints and send calibration info
+		if(sendingCalibrations){
+			static uint8_t index = 8;
+			if(index > 7){
+				index = 0;
+			}
+			sendCalibrationStruct(index);
+			index++;
+			if(index > 7){
+				// this will leave index at 8 so we will start over next time.
+				sendingCalibrations = false;
+			}
+			break;
+
+		} else {
+			fallingThrough = true;
+			// No break, fall through and find a report to send
+		}
 	}
 	/* no break */
 	case 's': {
 		//  Speed won't run if it or target was last to prevent it and target from just taking turns
 		//  Speed shouldn't be changing a lot.
 		if (!fallingThrough || (fallingThrough && (lastReport == POSITION))) {
-//			uint8_t rawBuf[22];
+			uint8_t rawBuf[22];
 			rawBuf[0] = '<';
 			rawBuf[1] = 0x12;
 			rawBuf[2] = 22;
@@ -174,7 +192,7 @@ void requestFromArm(char *p) {
 	case 't': {
 		// Target will run if it wasn't the last one.
 		if (!fallingThrough || (fallingThrough && (lastReport != TARGET))) {
-//			uint8_t rawBuf[22];
+			uint8_t rawBuf[22];
 			rawBuf[0] = '<';
 			rawBuf[1] = 0x12;
 			rawBuf[2] = 22;
@@ -211,7 +229,7 @@ void requestFromArm(char *p) {
 		/* no break */
 
 	case 'p': {
-//		uint8_t rawBuf[22];
+		uint8_t rawBuf[22];
 		rawBuf[0] = '<';
 		rawBuf[1] = 0x12;
 		rawBuf[2] = 22;
@@ -251,27 +269,42 @@ void requestFromArm(char *p) {
 		break;
 	}
 
-//	case 'c': {
-//		uint8_t numBytes = 76;
-//		uint8_t rawBuf[numBytes];
-//		rawBuf[0] = '<';
-//		rawBuf[1] = 0x12;
-//		rawBuf[2] = numBytes;
-//		for (uint8_t i = 0; i < arm.getNumJoints(); i++) {
-//			ServoCalibrationStruct cs = arm.getJoint(i)->getCalibrationStruct();
-//			memcpy(rawBuf + (12 * i) + 3, &(cs.minimumAngle), 4);
-//			memcpy(rawBuf + (12 * i) + 7, &(cs.maximumAngle), 4);
-//			memcpy(rawBuf + (12 * i) + 11, &(cs.minimumMicros), 2);
-//			memcpy(rawBuf + (12 * i) + 13, &(cs.maximumMicros), 2);
-//		}
-//		rawBuf[75] = '>';
-//		for (uint8_t i = 0; i < numBytes; i++) {
-//			Serial.write(rawBuf[i]);
-//		}
-//		break;
-//	}
+	//  Get a single set of calibration values <A,Ccn> where n is the joint index
+	//  Or send <A,RcA> to have regular report send them all
+	case 'c': {
+		if(p[2] == 'A'){
+			sendingCalibrations = true;
+		}
+		int jointNumber = atoi((const char*) (p + 2));
+		sendCalibrationStruct(jointNumber);
+
+		break;
 	}
 
+
+	}
+
+}
+
+void sendCalibrationStruct(uint8_t aIndex) {
+	uint8_t jointIndex = aIndex;
+	ServoCalibrationStruct cs =	arm.getJoint(jointIndex)->getCalibrationStruct();
+
+	uint8_t numBytes = 17;
+	uint8_t rawBuf[numBytes];
+	rawBuf[0] = '<';
+	rawBuf[1] = 0x12;
+	rawBuf[2] = numBytes;
+	rawBuf[3] = jointIndex;
+	memcpy(rawBuf + 4, &(cs.minimumAngle), 4);
+	memcpy(rawBuf + 8, &(cs.maximumAngle), 4);
+	memcpy(rawBuf + 12, &(cs.minimumMicros), 2);
+	memcpy(rawBuf + 14, &(cs.maximumMicros), 2);
+
+	rawBuf[16] = '>';
+	for (uint8_t i = 0; i < numBytes; i++) {
+		Serial.write(rawBuf[i]);
+	}
 }
 
 void bootResponse(char* p){

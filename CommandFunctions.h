@@ -49,6 +49,8 @@ void gimbalCommand(char* p);
 void xboxCommand(char* p);
 void xboxCommandRaw(char*);
 
+void sendCalibrationStruct(uint8_t);
+
 boolean parkArm();
 
 
