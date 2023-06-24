@@ -274,6 +274,7 @@ void requestFromArm(char *p) {
 	case 'c': {
 		if(p[2] == 'A'){
 			sendingCalibrations = true;
+			break;
 		}
 		int jointNumber = atoi((const char*) (p + 2));
 		sendCalibrationStruct(jointNumber);
@@ -288,7 +289,16 @@ void requestFromArm(char *p) {
 
 void sendCalibrationStruct(uint8_t aIndex) {
 	uint8_t jointIndex = aIndex;
-	ServoCalibrationStruct cs =	arm.getJoint(jointIndex)->getCalibrationStruct();
+	ServoCalibrationStruct cs;
+	if(jointIndex < 6){
+		cs = arm.getJoint(jointIndex)->getCalibrationStruct();
+	} else if (jointIndex == 6){
+		cs = gimbal.getPanJoint()->getCalibrationStruct();
+	} else if (jointIndex == 7){
+		cs = gimbal.getTiltJoint()->getCalibrationStruct();
+	} else {
+		return;  // bad index
+	}
 
 	uint8_t numBytes = 17;
 	uint8_t rawBuf[numBytes];
