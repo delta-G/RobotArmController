@@ -28,7 +28,6 @@ boolean programmingEEPROM = false;
 
 unsigned int heartbeatDelay = 250;
 
-
 DriveModeEnum currentDriveMode;
 
 XboxHandler xbox;
